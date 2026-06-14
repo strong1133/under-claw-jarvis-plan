@@ -60,11 +60,14 @@ for key in phase2_understand phase3_plan phase4_implement phase5_review closing;
   grep -q "^$key:" examples/skill-map.example.md && ok "key $key" || bad "key $key 없음"
 done
 
-echo "▶ 6. 양쪽 README 출처/귀속 표기 존재"
-for doc in README.md README.en.md; do
-  for src in "andrej-karpathy-skills" "superpowers" "Understand-Anything" "THIRD_PARTY_NOTICES"; do
+echo "▶ 6. README·스킬문서 외부 참조 스킬 출처/링크 표기 존재"
+for doc in README.md README.en.md skills/under-claw-jarvis-plan/README.md; do
+  for src in "andrej-karpathy-skills" "superpowers" "Understand-Anything"; do
     grep -q "$src" "$doc" && ok "$doc 출처: $src" || bad "$doc 출처 누락: $src"
   done
+done
+for doc in README.md README.en.md; do
+  grep -q "THIRD_PARTY_NOTICES" "$doc" && ok "$doc: THIRD_PARTY_NOTICES" || bad "$doc: THIRD_PARTY_NOTICES 누락"
 done
 
 echo "▶ 7. 민감정보/개인경로 누출 가드"

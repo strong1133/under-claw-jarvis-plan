@@ -8,14 +8,22 @@
 > 이 폴더는 그 커맨드가 참조하는 **방법론 번들**이다. 별도 `SKILL.md`를 두지 않는다 —
 > 커맨드와 동일 이름의 Agent Skill을 추가하면 스킬 목록이 **중복 등록**되므로, 커맨드 1개를 단일 진입점으로 유지한다.
 
+## 외부 참조 스킬 (크레딧)
+방법론 모듈은 아래 **3개 외부 참조 오픈소스 스킬(MIT)을 발췌·적응(adapt)** 한 것이다(재구현 아님). 출처:
+- **Karpathy Guidelines** — https://github.com/multica-ai/andrej-karpathy-skills (`00`, 전 단계 가드레일)
+- **Superpowers** — https://github.com/obra/superpowers (`20`/`30`/`40`, 계획·구현·검수)
+- **Understand-Anything** — https://github.com/Egonex-AI/Understand-Anything (`10`, 이해, 선택)
+
+전체 라이선스·귀속은 레포 루트 `THIRD_PARTY_NOTICES.md` 참조.
+
 ## references/
 | 파일 | 단계 | 출처(발췌·적응) |
 |------|------|------|
-| `00-karpathy.md` | 전 단계 가드레일 | multica-ai/andrej-karpathy-skills (MIT) |
-| `10-understand.md` | Phase2 이해 | 자체 + Understand-Anything(Egonex-AI, MIT) 라우팅 + 로컬 요구 명확화 사상 |
-| `20-plan.md` | Phase3 계획 | obra/superpowers brainstorming·writing-plans (MIT) |
-| `30-implement.md` | Phase4 구현 | obra/superpowers subagent-driven-development (MIT) |
-| `40-review.md` | Phase5 검수 | obra/superpowers code-review·verification (MIT) |
+| `00-karpathy.md` | 전 단계 가드레일 | 외부 참조: **Karpathy Guidelines** — [multica-ai/andrej-karpathy-skills](https://github.com/multica-ai/andrej-karpathy-skills) (MIT) |
+| `10-understand.md` | Phase2 이해 | 자체 + 외부 참조: **Understand-Anything** — [Egonex-AI/Understand-Anything](https://github.com/Egonex-AI/Understand-Anything) (MIT) 라우팅 + 로컬 요구 명확화 사상 |
+| `20-plan.md` | Phase3 계획 | 외부 참조: **Superpowers** — [obra/superpowers](https://github.com/obra/superpowers) brainstorming·writing-plans (MIT) |
+| `30-implement.md` | Phase4 구현 | 외부 참조: **Superpowers** — [obra/superpowers](https://github.com/obra/superpowers) subagent-driven-development (MIT) |
+| `40-review.md` | Phase5 검수 | 외부 참조: **Superpowers** — [obra/superpowers](https://github.com/obra/superpowers) code-review·verification (MIT) |
 | `50-peer-collab.md` | 전 단계 | 자체 — 멀티에이전트 협업(독립 병행→교차 검토→합의), 기본=서브에이전트 |
 | `60-skill-orchestration.md` | 전 단계 | 자체 — 단계별 기존 `/스킬` 능동 호출 **유형** 맵(재구현 금지, 호출 우선) |
 | `70-planning.md` | 전 단계(스킬 배선) | 자체 — 단계별 **구체 스킬 커스텀 매핑**(skill-map, 60 유형 맵보다 우선) |

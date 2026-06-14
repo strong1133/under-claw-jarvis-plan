@@ -10,6 +10,17 @@ Give it *what to build*, and it reasons through **understand → plan → implem
 > executing — on its own. Multi-agent / cross-model is an *optional amplifier for deeper thinking*,
 > never a requirement.
 
+### External reference skills (credits)
+This skill **adapts the methodologies of three open-source skills as external references** (it calls/applies
+them — it does not reimplement). All MIT.
+| External reference skill | Source (GitHub) | Module → stage |
+|---|---|---|
+| **Karpathy Guidelines** | https://github.com/multica-ai/andrej-karpathy-skills | `00-karpathy` → always-on guardrails |
+| **Superpowers** | https://github.com/obra/superpowers | `20`/`30`/`40` → plan · implement · review |
+| **Understand-Anything** | https://github.com/Egonex-AI/Understand-Anything | `10-understand` → understand (optional) |
+
+Full license/attribution notices in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md).
+
 ---
 
 ## Install (easiest first)
@@ -41,8 +52,11 @@ Then use `/under-claw-jarvis-plan` in any session. Existing files are backed up 
 ## Design philosophy (summary)
 1. **Decompose the requirement into stages and reason.** No diving straight into code — break it into
    *understand → plan → implement → review*, where each stage's output feeds the next.
-2. **Call, don't reimplement.** At each stage it invokes the `/skills` already in your environment and
-   proven methodologies (Karpathy · Superpowers · Understand-Anything). The skill itself is the *conductor*.
+2. **Call, don't reimplement.** At each stage it invokes the `/skills` already in your environment and the
+   methodologies of **three external reference skills**
+   ([Karpathy](https://github.com/multica-ai/andrej-karpathy-skills) ·
+   [Superpowers](https://github.com/obra/superpowers) ·
+   [Understand-Anything](https://github.com/Egonex-AI/Understand-Anything)). The skill itself is the *conductor*.
 3. **Solo session by default.** Thinking-heavy stages run on *current-session subagents* — independent
    drafts → cross-review → consensus. No extra setup. (A second-model peer extends it cross-model — optional.)
 4. **Environment-agnostic.** Work paths arrive via the prompt; concrete per-stage skills are swapped through
@@ -59,14 +73,14 @@ Then use `/under-claw-jarvis-plan` in any session. Existing files are backed up 
    0 Intake → 2 Understand → 3 Plan → 4 Implement → 5 Review
    (00 / 50 / 60 / 70 apply across all stages; simple queries skip the council)
 ```
-| Stage | What it does | Methodology module | What the stage calls (e.g.) |
-|-------|--------------|--------------------|------------------------------|
+| Stage | What it does | Methodology module (← external reference skill) | Skills used per stage |
+|-------|--------------|--------------------------------------------------|------------------------|
 | **0 Intake** | Parse paths / requirements / output-doc / constraints; decide greenfield vs brownfield; ask only what's missing | command body | — |
-| **2 Understand** | Align requirements (Socratic) + map code structure + (brownfield) **three-way diff** (intent ↔ current ↔ correction) | `10-understand` | requirement-clarify / contract-validate / pattern-validate skills · `deep-research` · (Understand-Anything) |
-| **3 Plan** | Compare approaches → agree on design → **design doc (fixed schema)** → split into verifiable tasks | `20-plan` | `deep-research` |
-| **4 Implement** | Fresh worker per task + **two-stage review (spec → quality)** | `30-implement` | style-rule / design-publish / API-sync skills |
-| **5 Review & close** | Whole-change review + execution verification + closing doc | `40-review` | pattern/contract/style validators · `code-review` · `security-review` · `simplify` · `verify` |
-| **Always-on** | Guardrails (00) · council collaboration (50) · skill type-map (60) · concrete skill binding (70) | `00`·`50`·`60`·`70` | — |
+| **2 Understand** | Align requirements (Socratic) + map code structure + (brownfield) **three-way diff** (intent ↔ current ↔ correction) | `10-understand` ← **[Understand-Anything](https://github.com/Egonex-AI/Understand-Anything)** | requirement-clarify / contract-validate / pattern-validate skills · `deep-research` · (Understand-Anything) |
+| **3 Plan** | Compare approaches → agree on design → **design doc (fixed schema)** → split into verifiable tasks | `20-plan` ← **[Superpowers](https://github.com/obra/superpowers)** | `deep-research` |
+| **4 Implement** | Fresh worker per task + **two-stage review (spec → quality)** | `30-implement` ← **[Superpowers](https://github.com/obra/superpowers)** | style-rule / design-publish / API-sync skills |
+| **5 Review & close** | Whole-change review + execution verification + closing doc | `40-review` ← **[Superpowers](https://github.com/obra/superpowers)** | review: pattern/contract/style validators · `code-review` · `security-review` · `simplify` · `verify` / close: ADR docs · API-sync · todo-register |
+| **Always-on** | Behavioral guardrails (00) · council collaboration (50) · skill type-map (60) · concrete skill binding (70) | `00-karpathy` ← **[Karpathy](https://github.com/multica-ai/andrej-karpathy-skills)** · `50`·`60`·`70` (original) | ※ Karpathy's 4 principles (no-assumptions · simplicity · surgical · verify) apply as guardrails **across all stages** |
 
 > Stages never skip **forward**, but **must loop backward** (`<회귀 N→M>`) when a later stage exposes an
 > earlier gap. A stage's todo closes only when its **Definition-of-Done artifact** exists (design doc saved,
@@ -98,15 +112,15 @@ bash tests/validate.sh          # structure / manifest / sensitive-data checks (
 ```
 `VERIFY-peer-collab.md` contains an optional reproducible 2-pane peer-collaboration scenario (6 acceptance signals).
 
-## Methodology modules & attribution (bundled open-source skills)
-The reference modules **adapt** (not verbatim-copy) the MIT skills below; full notices in
-[`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md):
+## External reference skills & attribution (credits)
+The methodology modules **adapt** (not verbatim-copy) the MIT **external reference skills** below; full
+notices in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md):
 
-| Module | Stage | Source | License |
-|--------|-------|--------|---------|
-| `00-karpathy` | always-on guardrails | [multica-ai/andrej-karpathy-skills](https://github.com/multica-ai/andrej-karpathy-skills) | MIT |
-| `10-understand` | understand | own routing + [Egonex-AI/Understand-Anything](https://github.com/Egonex-AI/Understand-Anything) | MIT |
-| `20-plan`·`30-implement`·`40-review` | plan·implement·review | [obra/superpowers](https://github.com/obra/superpowers) (brainstorming · subagent-driven-development · code-review/verification) | MIT |
+| Module | Stage | External reference skill (source GitHub) | License |
+|--------|-------|------------------------------------------|---------|
+| `00-karpathy` | always-on guardrails | **Karpathy Guidelines** — [multica-ai/andrej-karpathy-skills](https://github.com/multica-ai/andrej-karpathy-skills) | MIT |
+| `10-understand` | understand | own routing + **Understand-Anything** — [Egonex-AI/Understand-Anything](https://github.com/Egonex-AI/Understand-Anything) | MIT |
+| `20-plan`·`30-implement`·`40-review` | plan·implement·review | **Superpowers** — [obra/superpowers](https://github.com/obra/superpowers) (brainstorming · subagent-driven-development · code-review/verification) | MIT |
 | `50`·`60`·`70`·`90` | collaboration·binding·self-test | original (this repo) | MIT |
 | (authoring tool) | — | [anthropics/skills](https://github.com/anthropics/skills) — skill-creator | repo's own |
 
