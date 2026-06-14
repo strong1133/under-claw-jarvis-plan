@@ -23,29 +23,18 @@ Full license/attribution notices in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTIC
 
 ---
 
-## Install (easiest first)
-
-### A. Plugin marketplace (recommended — two lines)
-In any Claude Code session:
-```
-/plugin marketplace add strong1133/under-claw-jarvis-plan
-/plugin install under-claw-jarvis-plan@under-claw-jarvis-plan
-```
-
-### B. One-line remote (script)
+## Install (one line — including dependency skills)
+One line in your terminal:
 ```bash
 curl -fsSL https://raw.githubusercontent.com/strong1133/under-claw-jarvis-plan/master/install.sh | bash
 ```
-If the repo isn't present, the script auto-clones to a temp dir and continues (bootstrap).
+Installs under-claw-jarvis-plan **plus its dependency (external reference) skills**
+(Karpathy · Superpowers · Understand-Anything · skill-creator) into `~/.claude`. If the repo isn't present
+it auto-clones (bootstrap); existing files are backed up (idempotent & safe). Then use `/under-claw-jarvis-plan`.
 
-### C. Clone and install
-```bash
-git clone https://github.com/strong1133/under-claw-jarvis-plan && cd under-claw-jarvis-plan && ./install.sh
-```
-Then use `/under-claw-jarvis-plan` in any session. Existing files are backed up (idempotent & safe).
-
-> **Other harnesses (Cursor / Copilot).** Matching manifests ship under `.cursor-plugin/` and
-> `.copilot-plugin/` so the bundle is discoverable on Cursor and GitHub Copilot too (harness-neutral).
+- ⚠️ **Understand-Anything** is a pnpm plugin, so the installer prints **one manual step** at the end (optional — under-claw-jarvis-plan works without it).
+- Skill only (no deps): `… | bash -s -- --skill-only`
+- Dev clone install: `git clone https://github.com/strong1133/under-claw-jarvis-plan && cd under-claw-jarvis-plan && ./install.sh`
 
 ---
 

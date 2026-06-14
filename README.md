@@ -21,29 +21,18 @@
 
 ---
 
-## 설치 (가장 쉬운 것부터)
-
-### A. 플러그인 마켓플레이스 (권장 · 두 줄)
-Claude Code 세션에서:
-```
-/plugin marketplace add strong1133/under-claw-jarvis-plan
-/plugin install under-claw-jarvis-plan@under-claw-jarvis-plan
-```
-
-### B. 원격 한 줄 (스크립트)
+## 설치 (한 줄 — 의존 스킬까지 전부)
+터미널에 이 한 줄이면 끝:
 ```bash
 curl -fsSL https://raw.githubusercontent.com/strong1133/under-claw-jarvis-plan/master/install.sh | bash
 ```
-레포가 없으면 자동으로 임시 클론 후 설치한다(부트스트랩).
+under-claw-jarvis-plan + **의존(외부 참조) 스킬**(Karpathy · Superpowers · Understand-Anything · skill-creator)까지
+모두 `~/.claude`에 설치한다. 레포가 없으면 자동 임시 클론(부트스트랩), 기존 파일은 자동 백업(멱등·안전).
+설치 후 아무 세션에서 `/under-claw-jarvis-plan`.
 
-### C. 클론 후 설치
-```bash
-git clone https://github.com/strong1133/under-claw-jarvis-plan && cd under-claw-jarvis-plan && ./install.sh
-```
-설치 후 아무 세션에서 `/under-claw-jarvis-plan` 으로 사용. 기존 파일은 자동 백업(멱등·안전).
-
-> **다른 하니스(Cursor / Copilot)**: `.cursor-plugin/`·`.copilot-plugin/`에 동일 매니페스트를 동봉해
-> Cursor·GitHub Copilot 플러그인 흐름에서도 인식된다(방법론은 하니스 중립).
+- ⚠️ **Understand-Anything**은 pnpm 플러그인이라 설치 끝에 안내되는 **수동 1스텝**이 필요(선택 — 없어도 under-claw-jarvis-plan은 동작).
+- 스킬만(의존 제외): `… | bash -s -- --skill-only`
+- 개발용 클론 설치: `git clone https://github.com/strong1133/under-claw-jarvis-plan && cd under-claw-jarvis-plan && ./install.sh`
 
 ---
 

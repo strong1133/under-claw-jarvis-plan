@@ -1,18 +1,16 @@
 #!/usr/bin/env bash
-# under-claw-jarvis-plan 스킬 설치 — ~/.claude 에 스킬만 설치한다.
+# under-claw-jarvis-plan 설치 — 스킬 + 의존(외부 참조) 스킬까지 ~/.claude 에 설치한다.
 #
-# 가장 쉬운 설치는 Claude Code 플러그인 마켓플레이스:
-#   /plugin marketplace add strong1133/under-claw-jarvis-plan
-#   /plugin install under-claw-jarvis-plan@under-claw-jarvis-plan
-#
-# 스크립트 설치(이 파일):
+# 한 줄 설치(터미널):
 #   curl -fsSL https://raw.githubusercontent.com/strong1133/under-claw-jarvis-plan/master/install.sh | bash
-#   ./install.sh                  스킬 설치(commands + references) → ~/.claude
-#   ./install.sh --with-externals + 원본 스킬(Karpathy/Superpowers/Skill-Creator/Understand-Anything) 설치
-#   ./install.sh --externals-only 원본 스킬만
+#   → under-claw-jarvis-plan + Karpathy / Superpowers / Understand-Anything / skill-creator 까지 모두 설치
 #
-# 이 레포는 **스킬만** 담는다. 2-pane 런처/alias/persona 같은 실행 환경은 각자 환경에서 준비한다.
-# (스킬은 단독 Claude 세션의 `/under-claw-jarvis-plan` 로도, 2-pane 환경에서도 동작한다.)
+# 옵션:
+#   ./install.sh                  기본 = 스킬 + 의존(외부 참조) 스킬 모두 설치
+#   ./install.sh --skill-only     under-claw-jarvis-plan 스킬만(의존 제외)
+#   ./install.sh --externals-only 의존(외부 참조) 스킬만
+#
+# under-claw-jarvis-plan 자체는 외부 스킬 없이도 동작(방법론을 자체 reference로 내장). 의존 설치는 원본 강화용.
 
 set -euo pipefail
 
@@ -31,11 +29,12 @@ DEST="$HOME/.claude"
 TS="$(date +%Y%m%d-%H%M%S)"
 BACKUP_ROOT="$HOME/.under-claw-jarvis-plan-backup-$TS"
 
-WITH_EXTERNALS=0
+WITH_EXTERNALS=1   # 기본: 의존(외부 참조) 스킬까지 설치
 EXTERNALS_ONLY=0
 for a in "$@"; do
   case "$a" in
-    --with-externals) WITH_EXTERNALS=1 ;;
+    --skill-only)     WITH_EXTERNALS=0 ;;
+    --with-externals) WITH_EXTERNALS=1 ;;   # 기본값(하위호환 no-op)
     --externals-only) WITH_EXTERNALS=1; EXTERNALS_ONLY=1 ;;
     -h|--help) grep '^#' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) echo "[경고] 알 수 없는 옵션: $a" >&2 ;;
@@ -78,5 +77,6 @@ echo "under-claw-jarvis-plan 설치 (SSOT: $SRC_DIR)"
 [[ "$EXTERNALS_ONLY" == "1" ]] || install_skill
 [[ "$WITH_EXTERNALS" == "1" ]] && install_externals
 [[ -d "$BACKUP_ROOT" ]] && echo "기존 파일 백업: $BACKUP_ROOT"
+[[ "$WITH_EXTERNALS" == "1" ]] && echo "의존(외부 참조) 스킬 포함 설치 완료." || echo "스킬만 설치(--skill-only)."
 echo "완료. 새 세션에서 /under-claw-jarvis-plan 사용 가능."
 exit 0
