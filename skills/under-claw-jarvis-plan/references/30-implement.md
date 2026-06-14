@@ -3,20 +3,17 @@
 > 출처: Superpowers subagent-driven-development 발췌·적응 (obra/superpowers, MIT).
 > 핵심 공식: **task별 fresh 작업자 + 2단계 리뷰(스펙 → 품질) = 빠르고 높은 품질**.
 
-## 환경에 따른 작업자 배분 (Claude+Codex 호환의 핵심)
+## 작업자 배분
 
-### 단독 Claude (under-claw-jarvis-plan 환경)
+### 기본 — 현재 세션 서브에이전트
 - task마다 **fresh 서브에이전트**(`Agent`)를 띄워 구현. 컨텍스트는 task별로 격리.
 - 병렬 변경이 충돌하면 worktree 격리(`isolation: 'worktree'`) 또는 `Workflow`로 파이프라인.
+- **교차 리뷰**: 한 산출물은 **다른(검증 전용) 서브에이전트**가 스펙→품질 2단계 리뷰.
 
-### Claude + Codex 멀티에이전트 (tmux 2-pane) — 동등(→ `references/50-peer-collab.md`)
-- 같은 방법론을 동료 pane과 공유한다(이 파일은 Claude·Codex 모두 읽고 따른다).
-- **동등 원칙**: 둘 다 설계·구현·리뷰에 참여. "설계=Claude / 구현=Codex" 식 기능 위계 금지.
-  **분담은 업무 영역(프로젝트/모듈/파일)** 기준으로 상호 합의(각자 자기 영역의 설계+구현+자체리뷰 책임).
-- **교차 리뷰**: 한쪽 산출물은 **상대가** 스펙→품질 2단계 리뷰(이질적 관점 = 강한 검증).
-  Codex 구현은 Claude가, **Claude 구현은 Codex가** 리뷰한다.
-- 통신: `claude-team-send <세션:pane> "메시지"` (자동 Enter). 태그 규약은 SKILL의 환경 절 참조.
-- **동일 파일 동시 수정 금지** — 변경 직전 `[DIFF]` 로 파일·의도 공유 → 상대 `[ACK]` 후 진행.
+### 선택 — 제2 모델 peer가 있을 때 (→ `references/50-peer-collab.md`)
+- 환경에 다른 모델 peer가 있으면 **영역(프로젝트/모듈/파일) 분담**으로 병렬 구현하고
+  **상대가 교차 리뷰**(이질적 모델 = 더 강한 검증). 기능 위계(설계=A/구현=B) 금지.
+- peer 통신은 환경이 제공하는 방식. **동일 파일 동시 수정 금지** — 변경 직전 `[DIFF]` → 상대 `[ACK]`.
 
 ## task별 워크플로
 1. 작업자에게 **task 전문 + 맥락**을 전달(스펙 완비 시 더 빠른 모델 사용 가능).

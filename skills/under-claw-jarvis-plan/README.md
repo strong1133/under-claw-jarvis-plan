@@ -2,7 +2,7 @@
 
 `/under-claw-jarvis-plan` (진입점: `commands/under-claw-jarvis-plan.md`)이 참조하는 방법론 모음.
 프로젝트 초월 멀티에이전트 오케스트레이션을 이해→계획→구현→검수로 수행한다.
-단독 Claude 환경과 Claude+Codex tmux 멀티에이전트 환경 모두에서 동작.
+현재 세션의 서브에이전트로 멀티에이전트 동작(기본). 제2모델 peer가 있으면 교차-모델 동등 협업.
 
 ## references/
 | 파일 | 단계 | 출처(발췌·적응) |
@@ -12,7 +12,7 @@
 | `20-plan.md` | Phase3 계획 | obra/superpowers brainstorming·writing-plans (MIT) |
 | `30-implement.md` | Phase4 구현 | obra/superpowers subagent-driven-development (MIT) |
 | `40-review.md` | Phase5 검수 | obra/superpowers code-review·verification (MIT) |
-| `50-peer-collab.md` | 전 단계(2-pane) | 자체 — Claude↔Codex 동등 협업(독립 병행→교차 검토→합의) |
+| `50-peer-collab.md` | 전 단계 | 자체 — 멀티에이전트 협업(독립 병행→교차 검토→합의), 기본=서브에이전트 |
 | `60-skill-orchestration.md` | 전 단계 | 자체 — 단계별 기존 `/스킬` 능동 호출 맵(재구현 금지, 호출 우선) |
 | `90-test.md` | 자가진단 | 자체 — `/under-claw-jarvis-plan test` 단계·스킬·model별 점검 매트릭스 |
 
