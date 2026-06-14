@@ -1,0 +1,71 @@
+# 60 · 단계별 스킬 오케스트레이션 맵
+
+under-claw-jarvis-plan은 **고차 스킬**이다 — 직접 다 하지 말고, 환경에 깔린 **기존 `/스킬`을 단계마다 능동적으로
+호출**해 이해·계획·구현·검수를 주도한다.
+
+> ⚠️ **여기 나열되는 프로젝트 환경 스킬(understand, valid-pattern, code-review 등)은
+> "작업 중 빌려 쓰는 도구"일 뿐 under-claw-jarvis-plan **구성 스킬이 아니다.**
+> 따라서 로깅(`<…호출>`)·`test` 자가진단의 **대상이 아니다.** (대상은 commands의 구성 스킬뿐.)
+> 이 60 모듈 자체는 구성 스킬이라 `<skill-orchestration 적용>`으로 로깅한다.**
+
+## 운영 원칙
+- **재구현 금지, 호출 우선**: 어떤 스킬이 이미 하는 일을 손으로 다시 하지 않는다. 그 스킬을 호출한다.
+- **런타임 가용 목록 확인**: 각 단계 시작 시 **현재 세션에서 쓸 수 있는 스킬 목록**을 보고,
+  아래 맵 + 작업 유형(api/web/ai/mcp…)에 맞는 스킬을 골라 호출한다. 맵에 없어도 적합하면 쓴다.
+- **자율 선택**: 어떤 스킬을 쓸지는 council이 판단(사용자에게 일일이 묻지 않음).
+- **2-pane**: 스킬은 Claude가 호출(슬래시 스킬은 Claude 도구). 그동안 Codex는 영역 분담분을
+  병렬 진행하거나, 프로젝트 자체 CLI 검증(빌드/테스트/lint)을 맡는다. 결과는 교차 검토.
+
+## 단계 × 스킬 맵 (예시 — 환경에 맞게 가변)
+> 아래 스킬명은 **예시**다. 이 스킬은 특정 환경을 가정하지 않는다. **현재 세션에 실제 있는 스킬만** 골라 쓰고, 없으면 council/서브에이전트로 대체한다.
+
+### Phase 2 이해 (references/10)
+| 상황 | 스킬 |
+|------|------|
+| 요구가 모호 | `understand` (소크라테스식 요구 명확화) |
+| web↔api 작업, 현재 계약 파악 | `valid-service` (Service↔API 경로/메서드/DTO 일치성) |
+| 프론트 현황 파악 | `valid-pattern` (40항목 패턴 점검) |
+| 모르는 외부 기술/라이브러리 | `deep-research` |
+| 낯선/대형 코드베이스 | Understand-Anything `/understand`(설치 시) |
+
+### Phase 3 계획 (references/20)
+| 상황 | 스킬 |
+|------|------|
+| 외부 지식·선례 필요 | `deep-research` |
+| (대부분 방법론 중심 — 스킬보다 brainstorming/writing-plans) | — |
+
+### Phase 4 구현 (references/30)
+| 상황 | 스킬 |
+|------|------|
+| 프론트 구현 직전 규칙 확인 | `tailwind-rules` / `get_tailwind_rules` |
+| Figma 기반 퍼블리싱 | `figma-publish` |
+| API 엔드포인트 추가/변경 | `sync-postman` (구현 후 동기화) |
+
+### Phase 5 검수 (references/40)
+| 상황 | 스킬 |
+|------|------|
+| 프론트 패턴 검증 | `valid-pattern` (40항목) |
+| Service↔API 계약 검증 | `valid-service` |
+| Tailwind 위반 점검 | `check-tailwind` |
+| 정확성/버그 리뷰 | `code-review` |
+| 보안 점검 | `security-review` |
+| 정리·단순화 | `simplify` |
+| 실제 동작 확인 | `verify` |
+
+### 마감 (references/40 §5-3~5-4)
+| 상황 | 스킬 |
+|------|------|
+| 결정/설계 ADR 문서화 | `docs` |
+| API 동기화 | `sync-postman` |
+| 후속 작업 등록 | `todo` / `ff-todo` |
+
+## 호출 패턴
+1. 단계 진입 → "이 단계·이 프로젝트에 맞는 가용 스킬이 있나?" 자문.
+2. 있으면 호출 → 결과를 단계 산출에 통합.
+3. 스킬이 못 덮는 부분만 council이 직접 수행.
+4. 검수 단계는 **여러 검증 스킬을 묶어** 돌린다(예: web이면 valid-pattern + check-tailwind +
+   valid-service + verify). 빠진 검증 차원이 없는지 마지막에 점검.
+
+## 로깅 관련 주의
+여기서 호출하는 **프로젝트 환경 스킬은 로깅·test 대상이 아니다**(구성 스킬이 아님).
+로깅 규약(`<…호출>`)은 commands의 "under-claw-jarvis-plan 구성 스킬" 표에 있는 구성 스킬에만 적용한다.
