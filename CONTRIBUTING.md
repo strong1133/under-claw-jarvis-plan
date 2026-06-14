@@ -34,7 +34,7 @@ bash -n install.sh            # shell syntax
 ```
 All checks must pass (CI runs the same on push/PR). Please:
 1. Keep changes surgical and explain the *why* in the PR description.
-2. Update both `README.md` (English) and `README.ko.md` (Korean) when behavior/docs change.
+2. Update both `README.md` (Korean, default) and `README.en.md` (English) when behavior/docs change.
 3. Add/extend a `tests/validate.sh` check when you add a file the project relies on.
 
 ## Commit messages

@@ -20,7 +20,7 @@ have "$PY" || { echo "python3 필요(JSON 검증)"; exit 2; }
 
 echo "▶ 1. 필수 파일 존재"
 for f in \
-  LICENSE THIRD_PARTY_NOTICES.md README.md README.ko.md install.sh \
+  LICENSE THIRD_PARTY_NOTICES.md README.md README.en.md install.sh \
   CONTRIBUTING.md SECURITY.md CODE_OF_CONDUCT.md \
   commands/under-claw-jarvis-plan.md \
   skills/under-claw-jarvis-plan/README.md \
@@ -61,7 +61,7 @@ for key in phase2_understand phase3_plan phase4_implement phase5_review closing;
 done
 
 echo "▶ 6. 양쪽 README 출처/귀속 표기 존재"
-for doc in README.md README.ko.md; do
+for doc in README.md README.en.md; do
   for src in "andrej-karpathy-skills" "superpowers" "Understand-Anything" "THIRD_PARTY_NOTICES"; do
     grep -q "$src" "$doc" && ok "$doc 출처: $src" || bad "$doc 출처 누락: $src"
   done
