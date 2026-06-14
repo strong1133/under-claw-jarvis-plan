@@ -1,0 +1,22 @@
+{
+  "name": "under-claw-jarvis-plan",
+  "owner": {
+    "name": "strong1133",
+    "url": "https://github.com/strong1133"
+  },
+  "metadata": {
+    "description": "Marketplace hosting the under-claw-jarvis-plan orchestrator skill.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "under-claw-jarvis-plan",
+      "source": "./",
+      "description": "Project-agnostic multi-agent orchestrator: understand -> plan -> implement -> review, composing Karpathy / Understand-Anything / Superpowers methodologies.",
+      "version": "0.1.0",
+      "license": "MIT",
+      "category": "workflow",
+      "keywords": ["orchestrator", "multi-agent", "planning", "refactoring", "brownfield"]
+    }
+  ]
+}

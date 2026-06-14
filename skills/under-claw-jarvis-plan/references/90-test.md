@@ -17,13 +17,15 @@
 | Superpowers brainstorming/writing-plans | 20-plan | `<superpowers:plan 호출>` |
 | Superpowers subagent-driven-development | 30-implement | `<superpowers:implement 호출>` |
 | Superpowers code-review/verification | 40-review | `<superpowers:review 호출>` |
-| (자체) peer-collab / skill-orchestration / test | 50 / 60 / 90 | `<peer-collab 적용>` 등 |
+| (자체) peer-collab / skill-orchestration / skill-planning / test | 50 / 60 / 70 / 90 | `<peer-collab 적용>` 등 |
 
-> `understand`·`valid-pattern`·`code-review` 등 **프로젝트 환경 스킬은 대상 아님**(구성 스킬이 아님).
+> 요구 이해·패턴 검증·코드 리뷰 등 **프로젝트 환경 스킬은 대상 아님**(구성 스킬이 아님).
 
 ## 수행 절차 (호출은 전부 `<이름 호출>` 로깅하며 진행)
 1. **환경 감지**: 현재 세션 식별. 제2모델 peer(예: 2-pane)가 있는지 확인(없으면 기본 모드).
-2. **단계별 확인**: `00`~`60` reference 존재·로드 확인(`ls ~/.claude/skills/under-claw-jarvis-plan/references` 등).
+   커스텀 **skill-map**(프로젝트 `docs/under-claw-jarvis-plan/skill-map.md` → 유저 `~/.claude/under-claw-jarvis-plan.skillmap.md`)
+   탐지 — 있으면 적힌 스킬의 런타임 가용·단계 바인딩 점검(`70-planning`), 없으면 ⏭️(60 유형 맵 fallback).
+2. **단계별 확인**: `00`~`70` reference 존재·로드 확인(`ls ~/.claude/skills/under-claw-jarvis-plan/references` 등).
    각 Phase가 무엇을 하는지 1줄로 자가 확인.
 3. **스킬별 확인** (대상 = 위 **구성 스킬만**, 프로젝트 환경 스킬 제외):
    - 적용 가능성: 각 구성 모듈(00/10/20/30/40/50/60/90)이 로드되어 적용 가능한가.
@@ -32,6 +34,9 @@
 4. **multi-agent 확인**: **서브에이전트를 1개 띄워** council 동작을 실증(기본). 제2모델 peer가
    있으면 그 왕복·동등 핸드셰이크도 확인, 없으면 ⏭️(peer 없음).
 5. **로깅 규약 확인**: 위 1~4의 모든 호출이 `<이름 호출>` 형식으로 남았는지 점검.
+6. **보증 장치 확인**(설계 강제): command가 **단계 완료 검증(Definition of Done) 표**·**단계 회귀(`<회귀 N→M>`)**·
+   **합성 산출 스키마(50)**·**설계 doc 스키마(20)**를 로드·설명 가능한지 점검. 실제 task가 없으므로
+   *선언·로드*만 확인(읽기전용). 누락 시 ❌ — 강제가 "선언"에 그치지 않고 산출물·회귀로 닫히는지가 핵심.
 
 ## 출력 형식 (반드시 아래 3개 매트릭스 + 종합)
 
@@ -55,6 +60,7 @@
 | Superpowers·review | 40-review | ✅/❌ | `<superpowers:review 호출>` | … |
 | peer-collab | 50 | ✅/❌ | `<peer-collab 적용>` | … |
 | skill-orchestration | 60 | ✅/❌ | `<skill-orchestration 적용>` | … |
+| skill-planning | 70 | ✅/⏭️ | `<planning 적용>` | … |
 | test | 90 | ✅/❌ | `<test 실행>` | … |
 
 ### ③ 에이전트별
@@ -66,4 +72,4 @@
 
 ### 종합 판정
 - 단계 N/N · 스킬 N/N · model N/N → **PASS / PARTIAL / FAIL**
-- 실패·⏭️ 항목은 사유 1줄. (예: "tailwind-rules ⏭️ — MCP 미연결", "제2모델 peer ⏭️ — 없음")
+- 실패·⏭️ 항목은 사유 1줄. (예: "스타일 규칙 스킬 ⏭️ — MCP 미연결", "제2모델 peer ⏭️ — 없음")

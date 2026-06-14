@@ -3,7 +3,10 @@
 under-claw-jarvis-plan은 **고차 스킬**이다 — 직접 다 하지 말고, 환경에 깔린 **기존 `/스킬`을 단계마다 능동적으로
 호출**해 이해·계획·구현·검수를 주도한다.
 
-> ⚠️ **여기 나열되는 프로젝트 환경 스킬(understand, valid-pattern, code-review 등)은
+> 아래 맵은 **유형**(예: "패턴 검증 스킬")으로만 적는다(환경 비종속). **환경별 구체 스킬명**(예: `valid-pattern`)을
+> 단계에 바인딩하려면 → `references/70-planning.md`의 **커스텀 skill-map**에 선언한다. 70 맵이 60보다 우선한다.
+
+> ⚠️ **여기 나열되는 프로젝트 환경 스킬(요구 이해·패턴 검증·코드 리뷰 등)은
 > "작업 중 빌려 쓰는 도구"일 뿐 under-claw-jarvis-plan **구성 스킬이 아니다.**
 > 따라서 로깅(`<…호출>`)·`test` 자가진단의 **대상이 아니다.** (대상은 commands의 구성 스킬뿐.)
 > 이 60 모듈 자체는 구성 스킬이라 `<skill-orchestration 적용>`으로 로깅한다.**
@@ -22,9 +25,9 @@ under-claw-jarvis-plan은 **고차 스킬**이다 — 직접 다 하지 말고, 
 ### Phase 2 이해 (references/10)
 | 상황 | 스킬 |
 |------|------|
-| 요구가 모호 | `understand` (소크라테스식 요구 명확화) |
-| web↔api 작업, 현재 계약 파악 | `valid-service` (Service↔API 경로/메서드/DTO 일치성) |
-| 프론트 현황 파악 | `valid-pattern` (40항목 패턴 점검) |
+| 요구가 모호 | 요구 명확화 스킬 (소크라테스식) |
+| web↔api 작업, 현재 계약 파악 | 계약 검증 스킬 (Service↔API 경로/메서드/DTO 일치성) |
+| 프론트 현황 파악 | 프론트 패턴 검증 스킬 |
 | 모르는 외부 기술/라이브러리 | `deep-research` |
 | 낯선/대형 코드베이스 | Understand-Anything `/understand`(설치 시) |
 
@@ -37,16 +40,16 @@ under-claw-jarvis-plan은 **고차 스킬**이다 — 직접 다 하지 말고, 
 ### Phase 4 구현 (references/30)
 | 상황 | 스킬 |
 |------|------|
-| 프론트 구현 직전 규칙 확인 | `tailwind-rules` / `get_tailwind_rules` |
-| Figma 기반 퍼블리싱 | `figma-publish` |
-| API 엔드포인트 추가/변경 | `sync-postman` (구현 후 동기화) |
+| 프론트 구현 직전 규칙 확인 | 스타일 규칙 조회 스킬/MCP |
+| Figma 기반 퍼블리싱 | 디자인→코드 퍼블리싱 스킬 |
+| API 엔드포인트 추가/변경 | API 컬렉션 동기화 스킬 (구현 후) |
 
 ### Phase 5 검수 (references/40)
 | 상황 | 스킬 |
 |------|------|
-| 프론트 패턴 검증 | `valid-pattern` (40항목) |
-| Service↔API 계약 검증 | `valid-service` |
-| Tailwind 위반 점검 | `check-tailwind` |
+| 프론트 패턴 검증 | 프론트 패턴 검증 스킬 |
+| Service↔API 계약 검증 | 계약 검증 스킬 |
+| Tailwind 위반 점검 | 스타일(Tailwind) 점검 스킬 |
 | 정확성/버그 리뷰 | `code-review` |
 | 보안 점검 | `security-review` |
 | 정리·단순화 | `simplify` |
@@ -55,16 +58,16 @@ under-claw-jarvis-plan은 **고차 스킬**이다 — 직접 다 하지 말고, 
 ### 마감 (references/40 §5-3~5-4)
 | 상황 | 스킬 |
 |------|------|
-| 결정/설계 ADR 문서화 | `docs` |
-| API 동기화 | `sync-postman` |
-| 후속 작업 등록 | `todo` / `ff-todo` |
+| 결정/설계 ADR 문서화 | 문서화(ADR) 스킬 |
+| API 동기화 | API 동기화 스킬 |
+| 후속 작업 등록 | 후속 작업 등록 스킬(todo류) |
 
 ## 호출 패턴
 1. 단계 진입 → "이 단계·이 프로젝트에 맞는 가용 스킬이 있나?" 자문.
 2. 있으면 호출 → 결과를 단계 산출에 통합.
 3. 스킬이 못 덮는 부분만 council이 직접 수행.
-4. 검수 단계는 **여러 검증 스킬을 묶어** 돌린다(예: web이면 valid-pattern + check-tailwind +
-   valid-service + verify). 빠진 검증 차원이 없는지 마지막에 점검.
+4. 검수 단계는 **여러 검증 스킬을 묶어** 돌린다(예: web이면 패턴·스타일·계약 검증 스킬 +
+   `verify`). 빠진 검증 차원이 없는지 마지막에 점검.
 
 ## 로깅 관련 주의
 여기서 호출하는 **프로젝트 환경 스킬은 로깅·test 대상이 아니다**(구성 스킬이 아님).

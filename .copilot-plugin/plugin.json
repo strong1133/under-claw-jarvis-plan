@@ -1,0 +1,12 @@
+{
+  "name": "under-claw-jarvis-plan",
+  "version": "0.1.0",
+  "description": "Project-agnostic multi-agent orchestrator. Drives understand -> plan -> implement -> review across files and projects, composing Karpathy / Understand-Anything / Superpowers methodologies.",
+  "author": { "name": "strong1133", "url": "https://github.com/strong1133" },
+  "homepage": "https://github.com/strong1133/under-claw-jarvis-plan",
+  "repository": "https://github.com/strong1133/under-claw-jarvis-plan",
+  "license": "MIT",
+  "keywords": ["orchestrator", "multi-agent", "planning", "refactoring", "brownfield", "code-review"],
+  "commands": "../commands",
+  "skills": "../skills"
+}

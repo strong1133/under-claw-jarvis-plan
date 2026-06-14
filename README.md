@@ -1,107 +1,133 @@
-# under-claw-jarvis-plan — 프로젝트 초월 멀티에이전트 오케스트레이터 (스킬 번들 SSOT)
+<!-- 🌐 Language: **English** · [한국어](README.ko.md) -->
 
-특정 프로젝트에 종속되지 않고 **한 층위 위**에서, **Claude + Codex 동등 멀티에이전트**로
-요구사항을 **이해 → 분석 → 설계 → 계획 → 구현 → 검수**까지 주도하는 고차 스킬.
-지시는 주로 `/under-claw-jarvis-plan` 스킬로 전달하며, 각 단계에서 환경에 깔린 기존 `/스킬`을 능동 호출한다.
+# under-claw-jarvis-plan — project-agnostic multi-agent orchestrator
 
-> **SSOT**: 이 레포(`under-claw-jarvis-plan`)가 under-claw-jarvis-plan 스킬의 단일 기준이다.
-> 편집·푸시·설치는 모두 이 레포에서 한다(원하는 위치에 클론).
+A **higher-order** Claude Code skill that sits *one level above* a single project and drives a
+request all the way through **understand → analyze → design → plan → implement → review** using
+**multi-agent council**. It does not reimplement other skills — at each stage it **actively calls
+the skills already installed in your environment**.
 
----
+> **SSOT**: this repo is the single source of truth for the skill. It ships **only the skill**
+> (`commands` + `references`) — no project, company, or session-specific data. Work paths are
+> supplied at runtime via the prompt, so the skill is environment-agnostic.
 
-## 3축 설계
-| 축 | 내용 | 파일 |
-|----|------|------|
-| **멀티에이전트 council** | 복합 작업을 fan-out·검증·합성 | (전 단계) |
-| **Claude↔Codex 동등 협업** | 2-pane에서 독립 병행 → 교차 검토 → 합의 합성. 기능 위계 없음 | `50-peer-collab` |
-| **스킬 오케스트레이션** | 단계마다 기존 `/스킬` 능동 호출(재구현 금지) | `60-skill-orchestration` |
-
-> 이 레포는 **스킬만** 담는다(`commands` + `references`). 2-pane 런처·alias·persona 같은
-> 실행 환경은 포함하지 않으며, 각자 환경에서 준비한다. 스킬은 **단독 Claude 세션**에서
-> `/under-claw-jarvis-plan` 로 동작하고, Claude+Codex **2-pane 환경에선 동등 협업**으로 확장된다.
-
-## 단계 × 사용 스킬
-```
-/under-claw-jarvis-plan  (단독 Claude 또는 Claude+Codex 2-pane)
-   0 Intake → 2 이해·분석 → 3 설계·계획 → 4 구현 → 5 검수·마감
-   (단순 질의는 council 없이 즉답)
-```
-| 단계 | 하는 일 | 방법론(reference) | 호출 `/스킬` |
-|------|---------|-------------------|--------------|
-| **0 Intake** | 프로젝트·요구·정리문서·제약 파싱, 신규/수정 모드 판정, 빠진 것만 질문 | commands 본체 | — |
-| **2 이해·분석** | 요구 정렬 + 코드구조 + (수정모드) 3자대조(최초요구↔현재구현↔교정) | `10-understand` | `understand`·`valid-service`·`valid-pattern`·`deep-research`·(Understand-Anything) |
-| **3 설계·계획** | 접근법 비교 → 설계 합의 → 설계doc → 검증가능 task 분할 | `20-plan` | `deep-research` |
-| **4 구현** | task별 작업 + 2단계 리뷰(스펙→품질), 영역 분담 | `30-implement` | `tailwind-rules`·`figma-publish`·`sync-postman` |
-| **5 검수·마감** | 종합 리뷰 + 실행 검증 + 정리문서/문서화 | `40-review` | `valid-pattern`·`valid-service`·`check-tailwind`·`code-review`·`security-review`·`simplify`·`verify` / 마감 `docs`·`todo` |
-| **전 단계** | 행동 가드레일(가정금지·단순·외과적·검증가능) | `00-karpathy` | — |
-
-## references 구성 (출처)
-| 파일 | 단계 | 출처 |
-|------|------|------|
-| `00-karpathy` | 전 단계 가드레일 | multica-ai/andrej-karpathy-skills (MIT) |
-| `10-understand` | 이해·분석 | 자체 + Egonex-AI/Understand-Anything 라우팅 + 로컬 `/understand` |
-| `20-plan` | 설계·계획 | obra/superpowers brainstorming·writing-plans (MIT) |
-| `30-implement` | 구현 | obra/superpowers subagent-driven-development (MIT) |
-| `40-review` | 검수·마감 | obra/superpowers code-review·verification (MIT) |
-| `50-peer-collab` | 2-pane 전 단계 | 자체 — Claude↔Codex 동등 협업 |
-| `60-skill-orchestration` | 전 단계 | 자체 — 단계별 `/스킬` 호출 맵 |
-| (저작도구) | — | Anthropic skill-creator |
+Composes three MIT methodologies (see [Attribution](#attribution)):
+[Karpathy Guidelines](https://github.com/multica-ai/andrej-karpathy-skills) ·
+[Superpowers](https://github.com/obra/superpowers) ·
+[Understand-Anything](https://github.com/Egonex-AI/Understand-Anything).
 
 ---
 
-## 폴더 구조 (~/.claude 미러)
-```
-skills/under-claw-jarvis-plan/
-├── install.sh                 # 한 방 설치
-├── README.md                  # (이 문서)
-├── VERIFY-peer-collab.md      # 2-pane 동등 협업 검증 시나리오
-├── commands/
-│   └── under-claw-jarvis-plan.md         # → ~/.claude/commands/under-claw-jarvis-plan.md  (/under-claw-jarvis-plan 진입점)
-└── skills/
-    └── under-claw-jarvis-plan/           # → ~/.claude/skills/under-claw-jarvis-plan/
-        ├── README.md
-        └── references/        # 00-karpathy ~ 60-skill-orchestration + 90-test (8개)
-```
+## Install
 
-## 자가진단
+### A. Plugin marketplace (easiest — recommended)
+In any Claude Code session:
+```
+/plugin marketplace add strong1133/under-claw-jarvis-plan
+/plugin install under-claw-jarvis-plan@under-claw-jarvis-plan
+```
+Update later with `/plugin marketplace update under-claw-jarvis-plan`, then reinstall.
+
+### B. One-line remote install (script)
 ```bash
-/under-claw-jarvis-plan test    # 단계별·스킬별·model별 점검 매트릭스 출력 (읽기전용, 무변경)
+curl -fsSL https://raw.githubusercontent.com/strong1133/under-claw-jarvis-plan/master/install.sh | bash
 ```
-환경(solo/2-pane)·reference 로드·스킬 가용/호출/로깅·multi-agent 왕복을 점검하고
-단계 N/N · 스킬 N/N · model N/N → PASS/PARTIAL/FAIL 로 보고. 프로토콜: `references/90-test.md`.
+If run without the repo present, the script auto-clones to a temp dir and continues (bootstrap).
 
-## 설치 (새 PC에서 한 방)
+### C. Clone and install
 ```bash
 git clone https://github.com/strong1133/under-claw-jarvis-plan && cd under-claw-jarvis-plan && ./install.sh
 ```
-| 옵션 | 동작 |
-|------|------|
-| (없음) | 스킬 설치(commands + references) → `~/.claude`. **네트워크 불필요** |
-| `--with-externals` | + 원본 스킬(Karpathy/Superpowers/Skill-Creator/Understand-Anything) 설치 |
-| `--externals-only` | 원본 스킬만 |
-| `--help` | 사용법 |
 
-- 기존 파일은 `~/.under-claw-jarvis-plan-backup-<시각>/`에 자동 백업 후 교체(멱등·안전).
+> **Other harnesses (Cursor / Copilot).** Plugin manifests ship under `.cursor-plugin/` and
+> `.copilot-plugin/` (mirroring `.claude-plugin/`) so the bundle is discoverable on Cursor and
+> GitHub Copilot via their plugin install flows. The methodology is harness-neutral.
 
-## 사용
-설치 후, 아무 Claude Code 세션에서:
+| Flag | Effect |
+|------|--------|
+| (none) | Install the skill (commands + references) into `~/.claude`. **No network needed** |
+| `--with-externals` | Also clone the upstream skills (Karpathy / Superpowers / Skill-Creator / Understand-Anything) |
+| `--externals-only` | Upstream skills only |
+| `--help` | Usage |
+
+Existing files are backed up to `~/.under-claw-jarvis-plan-backup-<timestamp>/` before replacement (idempotent & safe).
+
+## Usage
+After install, in any Claude Code session:
 ```
-/under-claw-jarvis-plan        # 작업 프로젝트 경로 + 요구사항을 프롬프트로 전달
-/under-claw-jarvis-plan test   # 단계·스킬·model별 자가진단
+/under-claw-jarvis-plan        # pass work-project path(s) + requirements in the prompt
+/under-claw-jarvis-plan test   # self-diagnostic across stages / skills / models
 ```
-- **단독 Claude**: council = Agent/Workflow 서브에이전트.
-- **Claude+Codex 2-pane**: 동등 협업(독립 병행→교차 검토→합의). 2-pane 환경(런처·pane 통신)은
-  사용자가 자신의 환경에서 준비한다 — 이 레포는 그 하니스를 포함하지 않는다.
+- **Solo Claude**: the council is built from `Agent` / `Workflow` subagents in the current session — no extra tooling.
+- **Claude + second-model peer** (e.g. a 2-pane Claude+Codex): the same patterns extend to cross-model peer collaboration (heterogeneous models catch more).
 
-## 검증
-`VERIFY-peer-collab.md`에 2-pane 동등 협업 검증 시나리오(6대 신호/채점표) 수록.
-시나리오 B(분석·설계) + C(구현·교차리뷰) **6/6 PASS** — Codex가 Claude의 설계·코드를
-비판·개선 유도함을 실측(2-pane 환경에서 재현).
+> Output language follows your environment. The bundled methodology prompts are authored in Korean;
+> a full English README lives here and the [Korean docs](README.ko.md) carry the detailed walk-through.
 
-## 메모리 / 선택 의존
-- 메모리: **파일기반 경량**(설계doc = `docs/under-claw-jarvis-plan/specs/`). agentmemory 등 무거운 인프라 미사용.
-- Understand-Anything: 설치 시 `/understand`·`/understand-diff`로 구조 매핑 강화, 미설치면 council fan-out.
+## How it works — stages × skills
+```
+/under-claw-jarvis-plan
+   0 Intake → 2 Understand → 3 Plan → 4 Implement → 5 Review
+   (00 / 50 / 60 / 70 apply across all stages; simple queries skip the council)
+```
+| Stage | What it does | Core module |
+|-------|--------------|-------------|
+| **0 Intake** | Parse paths / requirements / output-doc / constraints; decide greenfield vs brownfield; ask only what's missing | command body |
+| **2 Understand** | Align requirements (Socratic) + map code structure + (brownfield) **three-way diff**: original intent ↔ current impl ↔ correction request | `10-understand` |
+| **3 Plan** | Compare 2–3 approaches → agree on design → write design doc → split into verifiable tasks | `20-plan` |
+| **4 Implement** | Fresh worker per task + **two-stage review (spec → quality)** | `30-implement` |
+| **5 Review & close** | Whole-change review + execution verification + closing doc | `40-review` |
+| **Always-on** | Behavioral guardrails (`00-karpathy`), council collaboration (`50-peer-collab`), per-stage skill map (`60-skill-orchestration`), custom skill binding (`70-planning`) | — |
 
-## 라이선스
-MIT (`LICENSE`). references는 Karpathy Guidelines / Superpowers / Understand-Anything(모두 MIT)을
-발췌·적응했으며, 출처 귀속은 `THIRD_PARTY_NOTICES.md` 참조.
+**Hard gate** for complex work: never skip the stage order *forward*, never proceed without applying
+the stage's module (with a `<tag>` log line), and never start implementation (Phase 4) on a brownfield
+task before the three-way diff is done. Stages may — and must — **loop backward** when a later stage
+exposes an earlier gap (logged `<회귀 N→M>`), and each stage's todo closes only when its concrete
+**Definition-of-Done artifact** exists (design doc saved, two-stage review passed, verification run).
+
+## Per-stage skill customization (skill-map)
+The core map (`60`) lists only **skill *types*** (e.g. "pattern-validation skill") so it stays
+environment-agnostic. To bind your **concrete** skills per stage, declare a `skill-map` (see `70-planning`):
+1. Copy `examples/skill-map.example.md` to one of:
+   - project: `<project>/docs/under-claw-jarvis-plan/skill-map.md`
+   - user-global: `~/.claude/under-claw-jarvis-plan.skillmap.md`
+2. Fill the fixed stage keys (`phase2_understand` / `phase3_plan` / `phase4_implement` / `phase5_review` / `closing`).
+3. The orchestrator loads it at start and calls those skills per stage (70 overrides the 60 type-map; missing → graceful fallback).
+
+The map lives **outside** the install dir, so reinstalls/updates never wipe it.
+
+## Verify / test
+```bash
+/under-claw-jarvis-plan test    # stage/skill/model matrix (read-only, no changes)
+bash tests/validate.sh          # structure / manifest / sensitive-data checks (also run in CI)
+```
+`VERIFY-peer-collab.md` contains a reproducible 2-pane peer-collaboration scenario (6 acceptance signals).
+
+## Repo layout
+```
+under-claw-jarvis-plan/
+├── .claude-plugin/{plugin.json, marketplace.json}   # Claude Code plugin + marketplace
+├── .cursor-plugin/ · .copilot-plugin/                # Cursor / Copilot plugin manifests
+├── install.sh                                        # script install (with remote bootstrap)
+├── README.md · README.ko.md                          # English / Korean
+├── LICENSE · THIRD_PARTY_NOTICES.md                  # MIT + attribution
+├── CONTRIBUTING.md · SECURITY.md · CODE_OF_CONDUCT.md # community docs
+├── examples/skill-map.example.md                     # per-stage skill map template
+├── tests/validate.sh · .github/workflows/ci.yml      # tests + CI
+├── commands/under-claw-jarvis-plan.md                # /under-claw-jarvis-plan entry point
+└── skills/under-claw-jarvis-plan/references/         # 00 … 60 + 70-planning + 90-test (9 modules)
+```
+
+## Attribution
+The reference modules **adapt** (not verbatim-copy) three MIT-licensed skills; full notices in
+[`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md):
+
+| Module | Source |
+|--------|--------|
+| `00-karpathy` | [multica-ai/andrej-karpathy-skills](https://github.com/multica-ai/andrej-karpathy-skills) (MIT) |
+| `10-understand` | own routing + [Egonex-AI/Understand-Anything](https://github.com/Egonex-AI/Understand-Anything) (MIT) |
+| `20/30/40` | [obra/superpowers](https://github.com/obra/superpowers) brainstorming · subagent-driven-dev · code-review/verification (MIT) |
+| `50 / 60 / 70 / 90` | original (this repo) |
+
+## License
+MIT — see [`LICENSE`](LICENSE).

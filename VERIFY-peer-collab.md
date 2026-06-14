@@ -42,8 +42,8 @@ CLAUDE pane에 `/under-claw-jarvis-plan` 호출 후 아래를 입력:
 - <프로젝트B>: </절대/경로/projB>
 
 ### 요구사항 (분석·설계만, 코드 변경 금지)
-AI_ARCHIVE_REPORT 의 orphan 참조 문제 — storage 파일이 삭제되면 리포트의
-storageFileSeqList 가 잔존 참조가 된다. 이걸 어떻게 처리할지 설계안을 내라.
+리포트 엔티티의 orphan 참조 문제 — 첨부 파일이 삭제되면 리포트의
+파일참조 목록(fileRefList)이 잔존 참조가 된다. 이걸 어떻게 처리할지 설계안을 내라.
 (후보: 삭제 이벤트 리스너에서 정리 / 조회 시 lazy validate / 배치 cleanup 등)
 결론은 설계안 + 근거 + 트레이드오프까지. 구현하지 말 것.
 ```

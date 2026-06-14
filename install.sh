@@ -1,7 +1,12 @@
 #!/usr/bin/env bash
 # under-claw-jarvis-plan 스킬 설치 — ~/.claude 에 스킬만 설치한다.
 #
-# 사용법:
+# 가장 쉬운 설치는 Claude Code 플러그인 마켓플레이스:
+#   /plugin marketplace add strong1133/under-claw-jarvis-plan
+#   /plugin install under-claw-jarvis-plan@under-claw-jarvis-plan
+#
+# 스크립트 설치(이 파일):
+#   curl -fsSL https://raw.githubusercontent.com/strong1133/under-claw-jarvis-plan/master/install.sh | bash
 #   ./install.sh                  스킬 설치(commands + references) → ~/.claude
 #   ./install.sh --with-externals + 원본 스킬(Karpathy/Superpowers/Skill-Creator/Understand-Anything) 설치
 #   ./install.sh --externals-only 원본 스킬만
@@ -12,6 +17,16 @@
 set -euo pipefail
 
 SRC_DIR="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" && pwd)"   # = 레포 루트
+REPO_URL="https://github.com/strong1133/under-claw-jarvis-plan"
+
+# 원격 부트스트랩: 레포 파일 없이(curl ... | bash) 실행되면 임시 클론 후 재실행한다.
+if [[ ! -f "$SRC_DIR/commands/under-claw-jarvis-plan.md" ]]; then
+  command -v git >/dev/null || { echo "[실패] git 필요(원격 설치)"; exit 1; }
+  TMP="$(mktemp -d)"; echo "원격 설치 — 임시 클론: $TMP/repo"
+  git clone --depth 1 -q "$REPO_URL" "$TMP/repo" || { echo "[실패] 클론"; exit 1; }
+  exec bash "$TMP/repo/install.sh" "$@"
+fi
+
 DEST="$HOME/.claude"
 TS="$(date +%Y%m%d-%H%M%S)"
 BACKUP_ROOT="$HOME/.under-claw-jarvis-plan-backup-$TS"
