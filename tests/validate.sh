@@ -23,6 +23,8 @@ for f in \
   LICENSE THIRD_PARTY_NOTICES.md README.md README.en.md install.sh \
   CONTRIBUTING.md SECURITY.md CODE_OF_CONDUCT.md \
   commands/under-claw-jarvis-plan.md \
+  skills/under-claw-jarvis-plan/SKILL.md \
+  skills/under-claw-jarvis-plan/agents/openai.yaml \
   skills/under-claw-jarvis-plan/README.md \
   .claude-plugin/plugin.json .claude-plugin/marketplace.json \
   .cursor-plugin/plugin.json .copilot-plugin/plugin.json \
@@ -36,11 +38,19 @@ for n in 00-karpathy 10-understand 20-plan 30-implement 40-review 50-peer-collab
   [[ -f "$f" ]] && ok "$n" || bad "$f 없음"
 done
 
-echo "▶ 3. command frontmatter (name/description/license)"
+echo "▶ 3. command / Codex skill frontmatter"
 fm="$(awk 'NR==1&&/^---/{f=1;next} f&&/^---/{exit} f' commands/under-claw-jarvis-plan.md)"
 for k in name description license; do
   grep -q "^$k:" <<<"$fm" && ok "frontmatter.$k" || bad "frontmatter.$k 누락"
 done
+skill_fm="$(awk 'NR==1&&/^---/{f=1;next} f&&/^---/{exit} f' skills/under-claw-jarvis-plan/SKILL.md)"
+for k in name description; do
+  grep -q "^$k:" <<<"$skill_fm" && ok "codex.frontmatter.$k" || bad "codex.frontmatter.$k 누락"
+done
+grep -q 'display_name:' skills/under-claw-jarvis-plan/agents/openai.yaml \
+  && ok "codex.openai.display_name" || bad "codex.openai.display_name 누락"
+grep -q 'default_prompt: "Use \$under-claw-jarvis-plan' skills/under-claw-jarvis-plan/agents/openai.yaml \
+  && ok "codex.openai.default_prompt" || bad "codex.openai.default_prompt 누락"
 
 echo "▶ 4. JSON 매니페스트 유효성 (claude/cursor/copilot + marketplace)"
 "$PY" - <<'PY' && ok "모든 매니페스트 유효" || bad "JSON 파싱/필드 오류"
@@ -59,6 +69,8 @@ echo "▶ 5. skill-map 예시 파싱 (단계 키)"
 for key in phase2_understand phase3_plan phase4_implement phase5_review closing; do
   grep -q "^$key:" examples/skill-map.example.md && ok "key $key" || bad "key $key 없음"
 done
+grep -q "~/.codex/under-claw-jarvis-plan.skillmap.md" examples/skill-map.example.md \
+  && ok "skill-map Codex 전역 경로" || bad "skill-map Codex 전역 경로 누락"
 
 echo "▶ 6. README·스킬문서 외부 참조 스킬 출처/링크 표기 존재"
 for doc in README.md README.en.md skills/under-claw-jarvis-plan/README.md; do
@@ -88,13 +100,22 @@ PATS
 
 echo "▶ 8. 설계 보증 문서화 (회귀 / DoD / 합성·설계doc 스키마)"
 CMD=commands/under-claw-jarvis-plan.md
+SKILL=skills/under-claw-jarvis-plan/SKILL.md
 grep -q "단계 회귀" "$CMD"            && ok "command: 단계 회귀(cross-stage feedback)" || bad "command: 단계 회귀 누락"
 grep -q "회귀 N→M" "$CMD"             && ok "command: 회귀 로깅 태그 정의"            || bad "command: <회귀 N→M> 누락"
 grep -q "Definition of Done" "$CMD"   && ok "command: 단계 완료 검증(DoD)"            || bad "command: DoD 누락"
+grep -q "단계 회귀" "$SKILL"          && ok "codex skill: 단계 회귀(cross-stage feedback)" || bad "codex skill: 단계 회귀 누락"
+grep -q "회귀 N→M" "$SKILL"           && ok "codex skill: 회귀 로깅 태그 정의"            || bad "codex skill: <회귀 N→M> 누락"
+grep -q "Definition of Done" "$SKILL" && ok "codex skill: 단계 완료 검증(DoD)"            || bad "codex skill: DoD 누락"
 grep -q "합성 산출 스키마" skills/under-claw-jarvis-plan/references/50-peer-collab.md \
   && ok "50: 합성 산출 스키마" || bad "50: 합성 산출 스키마 누락"
 grep -q "고정 스키마" skills/under-claw-jarvis-plan/references/20-plan.md \
   && ok "20: 설계 doc 고정 스키마" || bad "20: 설계 doc 스키마 누락"
+
+echo "▶ 9. Codex 설치 문서화"
+grep -q -- "--codex-only" install.sh && ok "install.sh: --codex-only" || bad "install.sh: --codex-only 누락"
+grep -q -- "--codex-only" README.md  && ok "README.md: Codex 설치" || bad "README.md: Codex 설치 누락"
+grep -q -- "--codex-only" README.en.md && ok "README.en.md: Codex install" || bad "README.en.md: Codex install 누락"
 
 echo
 echo "── 결과: PASS=$PASS  FAIL=$FAIL ──"

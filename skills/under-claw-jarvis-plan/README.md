@@ -1,12 +1,12 @@
 # under-claw-jarvis-plan 스킬 — 번들 방법론 출처
 
-`/under-claw-jarvis-plan` (진입점: `commands/under-claw-jarvis-plan.md`)이 참조하는 방법론 모음.
+`/under-claw-jarvis-plan` (Claude 진입점: `commands/under-claw-jarvis-plan.md`)과
+Codex `$under-claw-jarvis-plan` (Codex 진입점: `SKILL.md`)이 참조하는 방법론 모음.
 프로젝트 초월 멀티에이전트 오케스트레이션을 이해→계획→구현→검수로 수행한다.
 현재 세션의 서브에이전트로 멀티에이전트 동작(기본). 제2모델 peer가 있으면 교차-모델 동등 협업.
 
-> **진입점은 슬래시 커맨드** `commands/under-claw-jarvis-plan.md`(= `/under-claw-jarvis-plan`)이며,
-> 이 폴더는 그 커맨드가 참조하는 **방법론 번들**이다. 별도 `SKILL.md`를 두지 않는다 —
-> 커맨드와 동일 이름의 Agent Skill을 추가하면 스킬 목록이 **중복 등록**되므로, 커맨드 1개를 단일 진입점으로 유지한다.
+> **Claude 진입점은 슬래시 커맨드** `commands/under-claw-jarvis-plan.md`(= `/under-claw-jarvis-plan`)이다.
+> **Codex 진입점은 이 폴더의 `SKILL.md`** 이다. 두 진입점은 같은 `references/` 번들을 공유한다.
 
 ## 외부 참조 스킬 (크레딧)
 방법론 모듈은 아래 **3개 외부 참조 오픈소스 스킬(MIT)을 발췌·적응(adapt)** 한 것이다(재구현 아님). 출처:
@@ -32,6 +32,8 @@
 ## 설치
 SSOT는 레포 `under-claw-jarvis-plan`. 레포 루트의 `install.sh` 한 방으로 `~/.claude/`에 설치된다.
 이 스킬은 특정 프로젝트/환경에 종속되지 않는다 — 작업 경로는 실행 시 프롬프트로 받는다.
+
+Codex는 `./install.sh --codex-only`로 `${CODEX_HOME:-~/.codex}/skills/under-claw-jarvis-plan`에 설치된다.
 
 ## 선택 의존(미설치 시 graceful degrade)
 - Understand-Anything: 설치 시 `/understand`·`/understand-diff`로 코드 구조 매핑 강화.

@@ -24,6 +24,7 @@ Full license/attribution notices in [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTIC
 ---
 
 ## Install (one line — including dependency skills)
+### Claude Code
 One line in your terminal:
 ```bash
 curl -fsSL https://raw.githubusercontent.com/strong1133/under-claw-jarvis-plan/master/install.sh | bash
@@ -35,6 +36,18 @@ it auto-clones (bootstrap); existing files are backed up (idempotent & safe). Th
 - ⚠️ **Understand-Anything** is a pnpm plugin, so the installer prints **one manual step** at the end (optional — under-claw-jarvis-plan works without it).
 - Skill only (no deps): `… | bash -s -- --skill-only`
 - Dev clone install: `git clone https://github.com/strong1133/under-claw-jarvis-plan && cd under-claw-jarvis-plan && ./install.sh`
+
+### Codex
+Install as a Codex user skill:
+```bash
+curl -fsSL https://raw.githubusercontent.com/strong1133/under-claw-jarvis-plan/master/install.sh | bash -s -- --codex-only
+```
+It installs into `${CODEX_HOME:-~/.codex}/skills/under-claw-jarvis-plan`. Restart Codex, then use `$under-claw-jarvis-plan`.
+
+To install Claude and Codex support together, pass `--codex`:
+```bash
+curl -fsSL https://raw.githubusercontent.com/strong1133/under-claw-jarvis-plan/master/install.sh | bash -s -- --codex
+```
 
 ---
 
@@ -58,7 +71,7 @@ it auto-clones (bootstrap); existing files are backed up (idempotent & safe). Th
 
 ## Stages
 ```
-/under-claw-jarvis-plan
+/under-claw-jarvis-plan or $under-claw-jarvis-plan
    0 Intake → 2 Understand → 3 Plan → 4 Implement → 5 Review
    (00 / 50 / 60 / 70 apply across all stages; simple queries skip the council)
 ```
@@ -77,8 +90,10 @@ it auto-clones (bootstrap); existing files are backed up (idempotent & safe). Th
 
 ## Usage
 ```
-/under-claw-jarvis-plan        # pass work path(s) + requirements in the prompt
-/under-claw-jarvis-plan test   # self-diagnostic across stages / skills / models (read-only)
+/under-claw-jarvis-plan        # Claude: pass work path(s) + requirements in the prompt
+$under-claw-jarvis-plan        # Codex: pass work path(s) + requirements in the prompt
+/under-claw-jarvis-plan test   # Claude self-diagnostic (read-only)
+$under-claw-jarvis-plan test   # Codex self-diagnostic (read-only)
 ```
 - **Solo Claude (default)**: council = current-session `Agent` / `Workflow` subagents. No extra tooling.
 - **Second-model peer (optional)**: with another model present (e.g. 2-pane Claude+Codex), it extends to cross-model peer collaboration.
@@ -88,7 +103,8 @@ The core map (`60`) lists only **skill *types*** so it stays environment-agnosti
 skills per stage, declare a `skill-map` (see `70-planning`):
 1. Copy `examples/skill-map.example.md` to one of:
    - project: `<project>/docs/under-claw-jarvis-plan/skill-map.md`
-   - user-global: `~/.claude/under-claw-jarvis-plan.skillmap.md`
+   - Codex user-global: `~/.codex/under-claw-jarvis-plan.skillmap.md`
+   - Claude user-global: `~/.claude/under-claw-jarvis-plan.skillmap.md`
 2. Fill the fixed stage keys (`phase2_understand` / `phase3_plan` / `phase4_implement` / `phase5_review` / `closing`).
 3. The orchestrator loads it at start and calls those skills per stage (70 overrides 60; missing → graceful fallback).
 
@@ -125,7 +141,10 @@ under-claw-jarvis-plan/
 ├── examples/skill-map.example.md                    # per-stage skill map template
 ├── tests/validate.sh · .github/workflows/ci.yml     # tests + CI
 ├── commands/under-claw-jarvis-plan.md               # /under-claw-jarvis-plan entry point
-└── skills/under-claw-jarvis-plan/references/        # 00 … 60 + 70-planning + 90-test (9 modules)
+└── skills/under-claw-jarvis-plan/
+    ├── SKILL.md                                     # Codex $under-claw-jarvis-plan entry point
+    ├── agents/openai.yaml                           # Codex UI metadata
+    └── references/                                  # 00 … 60 + 70-planning + 90-test (9 modules)
 ```
 
 ## Memory / optional deps

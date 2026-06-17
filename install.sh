@@ -1,14 +1,16 @@
 #!/usr/bin/env bash
-# under-claw-jarvis-plan 설치 — 스킬 + 의존(외부 참조) 스킬까지 ~/.claude 에 설치한다.
+# under-claw-jarvis-plan 설치 — Claude 스킬 + 의존(외부 참조) 스킬, 또는 Codex 스킬을 설치한다.
 #
 # 한 줄 설치(터미널):
 #   curl -fsSL https://raw.githubusercontent.com/strong1133/under-claw-jarvis-plan/master/install.sh | bash
-#   → under-claw-jarvis-plan + Karpathy / Superpowers / Understand-Anything / skill-creator 까지 모두 설치
+#   → Claude: under-claw-jarvis-plan + Karpathy / Superpowers / Understand-Anything / skill-creator 까지 모두 설치
 #
 # 옵션:
-#   ./install.sh                  기본 = 스킬 + 의존(외부 참조) 스킬 모두 설치
-#   ./install.sh --skill-only     under-claw-jarvis-plan 스킬만(의존 제외)
-#   ./install.sh --externals-only 의존(외부 참조) 스킬만
+#   ./install.sh                  기본 = Claude 스킬 + 의존(외부 참조) 스킬 모두 설치
+#   ./install.sh --skill-only     Claude under-claw-jarvis-plan 스킬만(의존 제외)
+#   ./install.sh --externals-only Claude 의존(외부 참조) 스킬만
+#   ./install.sh --codex          Claude 기본 설치 + Codex 스킬도 설치
+#   ./install.sh --codex-only     Codex 스킬만 ${CODEX_HOME:-~/.codex}/skills 에 설치
 #
 # under-claw-jarvis-plan 자체는 외부 스킬 없이도 동작(방법론을 자체 reference로 내장). 의존 설치는 원본 강화용.
 
@@ -25,17 +27,23 @@ if [[ ! -f "$SRC_DIR/commands/under-claw-jarvis-plan.md" ]]; then
   exec bash "$TMP/repo/install.sh" "$@"
 fi
 
-DEST="$HOME/.claude"
+CLAUDE_DEST="$HOME/.claude"
+CODEX_DEST="${CODEX_HOME:-$HOME/.codex}/skills"
 TS="$(date +%Y%m%d-%H%M%S)"
 BACKUP_ROOT="$HOME/.under-claw-jarvis-plan-backup-$TS"
 
+INSTALL_CLAUDE=1
+INSTALL_CODEX=0
 WITH_EXTERNALS=1   # 기본: 의존(외부 참조) 스킬까지 설치
 EXTERNALS_ONLY=0
 for a in "$@"; do
   case "$a" in
     --skill-only)     WITH_EXTERNALS=0 ;;
     --with-externals) WITH_EXTERNALS=1 ;;   # 기본값(하위호환 no-op)
-    --externals-only) WITH_EXTERNALS=1; EXTERNALS_ONLY=1 ;;
+    --externals-only) WITH_EXTERNALS=1; EXTERNALS_ONLY=1; INSTALL_CLAUDE=0; INSTALL_CODEX=0 ;;
+    --codex)          INSTALL_CODEX=1 ;;
+    --codex-only)     INSTALL_CLAUDE=0; INSTALL_CODEX=1; WITH_EXTERNALS=0 ;;
+    --claude-only)    INSTALL_CLAUDE=1; INSTALL_CODEX=0 ;;
     -h|--help) grep '^#' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) echo "[경고] 알 수 없는 옵션: $a" >&2 ;;
   esac
@@ -45,20 +53,30 @@ backup() { local p="$1"; [[ -e "$p" ]] || return 0; mkdir -p "$BACKUP_ROOT"; cp 
 
 install_skill() {
   echo "▶ under-claw-jarvis-plan 스킬 설치"
-  mkdir -p "$DEST/commands" "$DEST/skills"
-  backup "$DEST/commands/under-claw-jarvis-plan.md"
-  cp "$SRC_DIR/commands/under-claw-jarvis-plan.md" "$DEST/commands/under-claw-jarvis-plan.md"
+  mkdir -p "$CLAUDE_DEST/commands" "$CLAUDE_DEST/skills"
+  backup "$CLAUDE_DEST/commands/under-claw-jarvis-plan.md"
+  cp "$SRC_DIR/commands/under-claw-jarvis-plan.md" "$CLAUDE_DEST/commands/under-claw-jarvis-plan.md"
   echo "  [설치] ~/.claude/commands/under-claw-jarvis-plan.md"
-  backup "$DEST/skills/under-claw-jarvis-plan"
-  rm -rf "$DEST/skills/under-claw-jarvis-plan"
-  cp -R "$SRC_DIR/skills/under-claw-jarvis-plan" "$DEST/skills/under-claw-jarvis-plan"
-  echo "  [설치] ~/.claude/skills/under-claw-jarvis-plan/ ($(find "$DEST/skills/under-claw-jarvis-plan" -name '*.md' | wc -l | tr -d ' ')개)"
-  echo "  구성: $(ls "$DEST/skills/under-claw-jarvis-plan/references" 2>/dev/null | sed 's/\.md$//' | paste -sd' ' -)"
+  backup "$CLAUDE_DEST/skills/under-claw-jarvis-plan"
+  rm -rf "$CLAUDE_DEST/skills/under-claw-jarvis-plan"
+  cp -R "$SRC_DIR/skills/under-claw-jarvis-plan" "$CLAUDE_DEST/skills/under-claw-jarvis-plan"
+  echo "  [설치] ~/.claude/skills/under-claw-jarvis-plan/ ($(find "$CLAUDE_DEST/skills/under-claw-jarvis-plan" -name '*.md' | wc -l | tr -d ' ')개)"
+  echo "  구성: $(ls "$CLAUDE_DEST/skills/under-claw-jarvis-plan/references" 2>/dev/null | sed 's/\.md$//' | paste -sd' ' -)"
 }
 
-CACHE="$DEST/skills/.sources"
+install_codex_skill() {
+  echo "▶ Codex under-claw-jarvis-plan 스킬 설치"
+  mkdir -p "$CODEX_DEST"
+  backup "$CODEX_DEST/under-claw-jarvis-plan"
+  rm -rf "$CODEX_DEST/under-claw-jarvis-plan"
+  cp -R "$SRC_DIR/skills/under-claw-jarvis-plan" "$CODEX_DEST/under-claw-jarvis-plan"
+  echo "  [설치] ${CODEX_DEST/#$HOME/~}/under-claw-jarvis-plan/ ($(find "$CODEX_DEST/under-claw-jarvis-plan" -name '*.md' | wc -l | tr -d ' ')개)"
+  echo "  구성: $(ls "$CODEX_DEST/under-claw-jarvis-plan/references" 2>/dev/null | sed 's/\.md$//' | paste -sd' ' -)"
+}
+
+CACHE="$CLAUDE_DEST/skills/.sources"
 clone() { command -v git >/dev/null || { echo "  [실패] git 미설치"; return 1; }; mkdir -p "$CACHE"; rm -rf "$CACHE/$2"; git clone --depth 1 -q "$1" "$CACHE/$2" 2>/dev/null && echo "  [클론] $2" || { echo "  [실패] $2"; return 1; }; }
-copy_skill() { [[ -d "$1" ]] || { echo "  [건너뜀] $2"; return 1; }; rm -rf "$DEST/skills/$2"; cp -R "$1" "$DEST/skills/$2"; echo "  [설치] ~/.claude/skills/$2"; }
+copy_skill() { [[ -d "$1" ]] || { echo "  [건너뜀] $2"; return 1; }; rm -rf "$CLAUDE_DEST/skills/$2"; cp -R "$1" "$CLAUDE_DEST/skills/$2"; echo "  [설치] ~/.claude/skills/$2"; }
 
 install_externals() {
   echo "▶ 원본 스킬 설치(best-effort)"
@@ -74,9 +92,12 @@ install_externals() {
 }
 
 echo "under-claw-jarvis-plan 설치 (SSOT: $SRC_DIR)"
-[[ "$EXTERNALS_ONLY" == "1" ]] || install_skill
+[[ "$INSTALL_CLAUDE" == "1" && "$EXTERNALS_ONLY" != "1" ]] && install_skill
+[[ "$INSTALL_CODEX" == "1" ]] && install_codex_skill
 [[ "$WITH_EXTERNALS" == "1" ]] && install_externals
 [[ -d "$BACKUP_ROOT" ]] && echo "기존 파일 백업: $BACKUP_ROOT"
-[[ "$WITH_EXTERNALS" == "1" ]] && echo "의존(외부 참조) 스킬 포함 설치 완료." || echo "스킬만 설치(--skill-only)."
-echo "완료. 새 세션에서 /under-claw-jarvis-plan 사용 가능."
+[[ "$WITH_EXTERNALS" == "1" ]] && echo "Claude 의존(외부 참조) 스킬 포함 설치 완료." || echo "의존 제외 설치."
+[[ "$INSTALL_CODEX" == "1" ]] && echo 'Codex 설치 완료. 새 Codex 세션에서 $under-claw-jarvis-plan 사용 가능.'
+[[ "$INSTALL_CLAUDE" == "1" || "$WITH_EXTERNALS" == "1" ]] && echo "완료. 새 Claude 세션에서 /under-claw-jarvis-plan 사용 가능."
+[[ "$INSTALL_CLAUDE" != "1" && "$WITH_EXTERNALS" != "1" ]] && echo "완료."
 exit 0

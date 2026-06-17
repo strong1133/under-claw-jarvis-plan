@@ -1,4 +1,4 @@
-# 90 · 자가진단 모드 (`/under-claw-jarvis-plan test`)
+# 90 · 자가진단 모드 (`/under-claw-jarvis-plan test` 또는 `$under-claw-jarvis-plan test`)
 
 입력이 `test`면 일반 플로우(Intake→검수) 대신 **이 자가진단**을 수행하고 종료한다.
 **안전 원칙**: 읽기 전용. 프로젝트 파일을 변경하지 않는다. 외부 전송·배포 금지. 빠르게 끝낸다.
@@ -23,16 +23,15 @@
 
 ## 수행 절차 (호출은 전부 `<이름 호출>` 로깅하며 진행)
 1. **환경 감지**: 현재 세션 식별. 제2모델 peer(예: 2-pane)가 있는지 확인(없으면 기본 모드).
-   커스텀 **skill-map**(프로젝트 `docs/under-claw-jarvis-plan/skill-map.md` → 유저 `~/.claude/under-claw-jarvis-plan.skillmap.md`)
+   커스텀 **skill-map**(프로젝트 `docs/under-claw-jarvis-plan/skill-map.md` → Codex `~/.codex/under-claw-jarvis-plan.skillmap.md` → Claude `~/.claude/under-claw-jarvis-plan.skillmap.md`)
    탐지 — 있으면 적힌 스킬의 런타임 가용·단계 바인딩 점검(`70-planning`), 없으면 ⏭️(60 유형 맵 fallback).
-2. **단계별 확인**: `00`~`70` reference 존재·로드 확인(`ls ~/.claude/skills/under-claw-jarvis-plan/references` 등).
+2. **단계별 확인**: `00`~`70` reference 존재·로드 확인(Codex는 `~/.codex/skills/under-claw-jarvis-plan/references`, Claude는 `~/.claude/skills/under-claw-jarvis-plan/references` 등).
    각 Phase가 무엇을 하는지 1줄로 자가 확인.
 3. **스킬별 확인** (대상 = 위 **구성 스킬만**, 프로젝트 환경 스킬 제외):
    - 적용 가능성: 각 구성 모듈(00/10/20/30/40/50/60/90)이 로드되어 적용 가능한가.
    - 로깅 실증: 각 구성 스킬을 `<{태그} 호출>` 형식으로 로깅하며 점검(이 자가진단 자체가 로깅 형식을 실증).
    - Understand-Anything은 외부 설치 의존 → 미설치면 ⏭️ + 사유(자체 이해 라우팅으로 대체).
-4. **multi-agent 확인**: **서브에이전트를 1개 띄워** council 동작을 실증(기본). 제2모델 peer가
-   있으면 그 왕복·동등 핸드셰이크도 확인, 없으면 ⏭️(peer 없음).
+4. **multi-agent 확인**: 서브에이전트 도구가 있으면 **서브에이전트를 1개 띄워** council 동작을 실증한다. 도구가 없으면 현재 세션에서 역할별 독립 패스로 대체 가능 여부를 확인한다. 제2모델 peer가 있으면 그 왕복·동등 핸드셰이크도 확인, 없으면 ⏭️(peer 없음).
 5. **로깅 규약 확인**: 위 1~4의 모든 호출이 `<이름 호출>` 형식으로 남았는지 점검.
 6. **보증 장치 확인**(설계 강제): command가 **단계 완료 검증(Definition of Done) 표**·**단계 회귀(`<회귀 N→M>`)**·
    **합성 산출 스키마(50)**·**설계 doc 스키마(20)**를 로드·설명 가능한지 점검. 실제 task가 없으므로

@@ -3,7 +3,8 @@
 # 이 파일을 복사해 아래 중 한 곳에 두면, 단계별로 "여기 적힌 구체 스킬"을 호출한다.
 # Copy this to one of the locations below to bind concrete skills per stage:
 #   - project  : <project>/docs/under-claw-jarvis-plan/skill-map.md
-#   - user-wide: ~/.claude/under-claw-jarvis-plan.skillmap.md
+#   - Codex    : ~/.codex/under-claw-jarvis-plan.skillmap.md
+#   - Claude   : ~/.claude/under-claw-jarvis-plan.skillmap.md
 #
 # 규칙(rules):
 #   - 키는 단계 고정. 값은 현재 세션에 실제 있는 스킬명 배열(슬래시 없이 이름만).

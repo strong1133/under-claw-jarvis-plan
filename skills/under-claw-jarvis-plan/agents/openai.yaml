@@ -1,0 +1,4 @@
+interface:
+  display_name: "Under Claw Jarvis Plan"
+  short_description: "Stage-based orchestration for Codex"
+  default_prompt: "Use $under-claw-jarvis-plan to plan, implement, and verify this multi-file change."

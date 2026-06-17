@@ -22,6 +22,7 @@
 ---
 
 ## 설치 (한 줄 — 의존 스킬까지 전부)
+### Claude Code
 터미널에 이 한 줄이면 끝:
 ```bash
 curl -fsSL https://raw.githubusercontent.com/strong1133/under-claw-jarvis-plan/master/install.sh | bash
@@ -33,6 +34,18 @@ under-claw-jarvis-plan + **의존(외부 참조) 스킬**(Karpathy · Superpower
 - ⚠️ **Understand-Anything**은 pnpm 플러그인이라 설치 끝에 안내되는 **수동 1스텝**이 필요(선택 — 없어도 under-claw-jarvis-plan은 동작).
 - 스킬만(의존 제외): `… | bash -s -- --skill-only`
 - 개발용 클론 설치: `git clone https://github.com/strong1133/under-claw-jarvis-plan && cd under-claw-jarvis-plan && ./install.sh`
+
+### Codex
+Codex 사용자 스킬로 설치:
+```bash
+curl -fsSL https://raw.githubusercontent.com/strong1133/under-claw-jarvis-plan/master/install.sh | bash -s -- --codex-only
+```
+설치 위치는 `${CODEX_HOME:-~/.codex}/skills/under-claw-jarvis-plan`이다. 설치 후 새 Codex 세션에서 `$under-claw-jarvis-plan`.
+
+Claude와 Codex를 동시에 설치하려면 `--codex`를 붙인다:
+```bash
+curl -fsSL https://raw.githubusercontent.com/strong1133/under-claw-jarvis-plan/master/install.sh | bash -s -- --codex
+```
 
 ---
 
@@ -52,7 +65,7 @@ under-claw-jarvis-plan + **의존(외부 참조) 스킬**(Karpathy · Superpower
 
 ## 진행 단계
 ```
-/under-claw-jarvis-plan
+/under-claw-jarvis-plan 또는 $under-claw-jarvis-plan
    0 Intake → 2 이해 → 3 계획 → 4 구현 → 5 검수·마감
    (00 / 50 / 60 / 70 은 전 단계 상시 · 단순 질의는 즉답)
 ```
@@ -70,8 +83,10 @@ under-claw-jarvis-plan + **의존(외부 참조) 스킬**(Karpathy · Superpower
 
 ## 사용
 ```
-/under-claw-jarvis-plan        # 작업 경로(복수 가능) + 요구사항을 프롬프트로 전달
-/under-claw-jarvis-plan test   # 단계·스킬·model별 자가진단(읽기전용)
+/under-claw-jarvis-plan        # Claude: 작업 경로(복수 가능) + 요구사항을 프롬프트로 전달
+$under-claw-jarvis-plan        # Codex: 작업 경로(복수 가능) + 요구사항을 프롬프트로 전달
+/under-claw-jarvis-plan test   # Claude 자가진단(읽기전용)
+$under-claw-jarvis-plan test   # Codex 자가진단(읽기전용)
 ```
 - **단독 Claude(기본)**: council = 현재 세션의 `Agent`/`Workflow` 서브에이전트. 추가 도구 없음.
 - **제2 모델 peer(선택)**: 환경에 다른 모델(예: 2-pane Claude+Codex)이 있으면 교차-모델 동등 협업으로 확장.
@@ -80,7 +95,8 @@ under-claw-jarvis-plan + **의존(외부 참조) 스킬**(Karpathy · Superpower
 환경마다 실제 스킬명이 다르므로, 코어에는 **유형**만 적고 **구체 스킬은 외부 맵으로 바인딩**한다(→ `70-planning`).
 1. `examples/skill-map.example.md` 를 복사해 아래 중 하나로 둔다:
    - 프로젝트: `<프로젝트>/docs/under-claw-jarvis-plan/skill-map.md`
-   - 유저 전역: `~/.claude/under-claw-jarvis-plan.skillmap.md`
+   - Codex 전역: `~/.codex/under-claw-jarvis-plan.skillmap.md`
+   - Claude 전역: `~/.claude/under-claw-jarvis-plan.skillmap.md`
 2. 단계 키(`phase2_understand`/`phase3_plan`/`phase4_implement`/`phase5_review`/`closing`)에 자기 스킬을 적는다.
 3. 시작 시 오케스트레이터가 로드해 단계마다 호출(70이 60 유형 맵보다 우선). 맵이 없으면 60 fallback.
 - 맵은 설치 폴더 **밖**에 있어 재설치/업데이트해도 보존된다.
@@ -116,7 +132,10 @@ under-claw-jarvis-plan/
 ├── examples/skill-map.example.md                    # 단계별 커스텀 스킬 맵 템플릿
 ├── tests/validate.sh · .github/workflows/ci.yml     # 테스트 + CI
 ├── commands/under-claw-jarvis-plan.md               # /under-claw-jarvis-plan 진입점
-└── skills/under-claw-jarvis-plan/references/        # 00 … 60 + 70-planning + 90-test (9개 모듈)
+└── skills/under-claw-jarvis-plan/
+    ├── SKILL.md                                     # Codex $under-claw-jarvis-plan 진입점
+    ├── agents/openai.yaml                           # Codex UI 메타데이터
+    └── references/                                  # 00 … 60 + 70-planning + 90-test (9개 모듈)
 ```
 
 ## 메모리 / 선택 의존
