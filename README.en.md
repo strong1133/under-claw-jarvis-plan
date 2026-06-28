@@ -114,7 +114,7 @@ $under-claw-jarvis-plan test   # Codex self-diagnostic (read-only)
 ## Loop variant — `under-claw-jarvis-plan-loop` (self-converging)
 Runs the base skill as **one iteration**, and after each round a **separate, independent reviewer session**
 scores compliance with the original requirements and the project's source patterns on a **10-point scale**.
-The loop **terminates only when the score exceeds 9.5** (otherwise the gap list feeds the next round — Reflexion).
+The loop **terminates once the score reaches 9.5 (≥ 9.5)** (otherwise the gap list feeds the next round — Reflexion).
 ```
 /under-claw-jarvis-plan-loop {requirements}        # self-converge to the 9.5 gate (--max-rounds N, --target X.X)
 $under-claw-jarvis-plan-loop {requirements}        # Codex

@@ -105,7 +105,7 @@ $under-claw-jarvis-plan test   # Codex 자가진단(읽기전용)
 
 ## 루프 변형 — `under-claw-jarvis-plan-loop` (자기수렴)
 베이스를 **한 회차**로 반복하고, 회차마다 **분리된 독립 검수 세션**이 원요구·소스패턴 준수를
-**10점 만점**으로 채점한다. **9.5 초과 시에만 종료**(미달이면 gap을 다음 회차로 전달, Reflexion).
+**10점 만점**으로 채점한다. **9.5 이상이면 종료**(미달이면 gap을 다음 회차로 전달, Reflexion).
 ```
 /under-claw-jarvis-plan-loop {요구사항}            # 9.5 게이트까지 자기수렴 (--max-rounds N, --target X.X)
 $under-claw-jarvis-plan-loop {요구사항}            # Codex

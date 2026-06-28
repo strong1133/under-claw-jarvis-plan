@@ -106,7 +106,7 @@ install_externals() {
   echo "▶ 원본 스킬 설치(best-effort)"
   clone https://github.com/multica-ai/andrej-karpathy-skills karpathy && copy_skill "$CACHE/karpathy/skills/karpathy-guidelines" karpathy-guidelines || true
   if clone https://github.com/obra/superpowers superpowers && [[ -d "$CACHE/superpowers/skills" ]]; then
-    local c=0; for d in "$CACHE/superpowers/skills"/*/; do [[ -f "${d}SKILL.md" ]] || continue; rm -rf "$DEST/skills/$(basename "$d")"; cp -R "$d" "$DEST/skills/$(basename "$d")"; c=$((c+1)); done
+    local c=0; for d in "$CACHE/superpowers/skills"/*/; do [[ -f "${d}SKILL.md" ]] || continue; rm -rf "$CLAUDE_DEST/skills/$(basename "$d")"; cp -R "$d" "$CLAUDE_DEST/skills/$(basename "$d")"; c=$((c+1)); done
     echo "  [설치] Superpowers 스킬 ${c}개"
   fi
   clone https://github.com/anthropics/skills anthropic-skills && copy_skill "$CACHE/anthropic-skills/skills/skill-creator" skill-creator || true
