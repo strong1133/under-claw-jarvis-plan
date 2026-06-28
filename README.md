@@ -47,6 +47,18 @@ Claude와 Codex를 동시에 설치하려면 `--codex`를 붙인다:
 curl -fsSL https://raw.githubusercontent.com/strong1133/under-claw-jarvis-plan/master/install.sh | bash -s -- --codex
 ```
 
+### Gemini
+Gemini 사용자 스킬로 설치:
+```bash
+curl -fsSL https://raw.githubusercontent.com/strong1133/under-claw-jarvis-plan/master/install.sh | bash -s -- --gemini-only
+```
+설치 위치는 `${GEMINI_HOME:-~/.gemini}/skills/under-claw-jarvis-plan`이고 진입점은 `GEMINI.md`다. Claude와 함께 설치하려면 `--gemini`.
+
+### 그 외 에이전트 (범용)
+방법론(`references/`)은 **에이전트 중립**이다. 호스트마다 다른 건 작업추적·스킬호출·멀티에이전트
+**세 도구의 이름뿐**이고, 그 매핑과 fallback은 `references/05-host-map.md`에 데이터로 정리돼 있다.
+전용 진입점이 없는 에이전트도 `SKILL.md`/`GEMINI.md` 중 가용한 것을 로드하면 generic LLM fallback으로 동일하게 구동된다.
+
 ---
 
 ## 설계 사상 (요약)
@@ -91,6 +103,23 @@ $under-claw-jarvis-plan test   # Codex 자가진단(읽기전용)
 - **단독 Claude(기본)**: council = 현재 세션의 `Agent`/`Workflow` 서브에이전트. 추가 도구 없음.
 - **제2 모델 peer(선택)**: 환경에 다른 모델(예: 2-pane Claude+Codex)이 있으면 교차-모델 동등 협업으로 확장.
 
+## 루프 변형 — `under-claw-jarvis-plan-loop` (자기수렴)
+베이스를 **한 회차**로 반복하고, 회차마다 **분리된 독립 검수 세션**이 원요구·소스패턴 준수를
+**10점 만점**으로 채점한다. **9.5 초과 시에만 종료**(미달이면 gap을 다음 회차로 전달, Reflexion).
+```
+/under-claw-jarvis-plan-loop {요구사항}            # 9.5 게이트까지 자기수렴 (--max-rounds N, --target X.X)
+$under-claw-jarvis-plan-loop {요구사항}            # Codex
+/under-claw-jarvis-plan-loop test                 # 자가진단(읽기전용, 루프 미실행)
+```
+- **3 역할 = 3 분리 세션**(검수 분리 원칙):
+  ① 루프 오케스트레이터(메인) — 회차 진행·검수 전달·종료 결정
+  ② 검수담당(**구현·오케스트레이터와 별개 세션**) — 10점 채점, 적대적·회의적
+  ③ 구현담당(**회차마다 fresh 세션**) — 베이스 under-claw-jarvis-plan 완주 후 오케스트레이터에 보고
+- **채점**: D1 요구 충실도 4.0 / D2 정확성·타당성 3.0 / D3 관례·패턴(소스패턴 일반화) 2.0 / D4 품질·단순성 1.0.
+- **안전장치**: MAX_ROUNDS cap(기본 5) + plateau(개선<0.2) → 무한 루프 금지, 미수렴 시 사용자 에스컬레이션.
+- **도메인 무관**: 개발뿐 아니라 파일생성·분석·기획·경제계획 등에 동일 적용. 페르소나·시스템프롬프트는
+  `skills/under-claw-jarvis-plan-loop/references/`(`10-orchestrator`/`20-implementer`/`30-reviewer`/`40-scoring`).
+
 ## 단계별 스킬 커스텀 (skill-map)
 환경마다 실제 스킬명이 다르므로, 코어에는 **유형**만 적고 **구체 스킬은 외부 맵으로 바인딩**한다(→ `70-planning`).
 1. `examples/skill-map.example.md` 를 복사해 아래 중 하나로 둔다:
@@ -131,11 +160,18 @@ under-claw-jarvis-plan/
 ├── CONTRIBUTING.md · SECURITY.md · CODE_OF_CONDUCT.md
 ├── examples/skill-map.example.md                    # 단계별 커스텀 스킬 맵 템플릿
 ├── tests/validate.sh · .github/workflows/ci.yml     # 테스트 + CI
-├── commands/under-claw-jarvis-plan.md               # /under-claw-jarvis-plan 진입점
-└── skills/under-claw-jarvis-plan/
-    ├── SKILL.md                                     # Codex $under-claw-jarvis-plan 진입점
-    ├── agents/openai.yaml                           # Codex UI 메타데이터
-    └── references/                                  # 00 … 60 + 70-planning + 90-test (9개 모듈)
+├── commands/
+│   ├── under-claw-jarvis-plan.md                    # /under-claw-jarvis-plan 진입점
+│   └── under-claw-jarvis-plan-loop.md               # /under-claw-jarvis-plan-loop 진입점(루프)
+└── skills/
+    ├── under-claw-jarvis-plan/
+    │   ├── SKILL.md · GEMINI.md                     # Codex / Gemini 진입점
+    │   ├── agents/openai.yaml                       # Codex UI 메타데이터
+    │   └── references/                              # 00 + 05-host-map + 10 … 70 + 90 (방법론 + 호스트 어댑터)
+    └── under-claw-jarvis-plan-loop/                 # 루프 변형(베이스 = under-claw-jarvis-plan)
+        ├── SKILL.md · GEMINI.md                     # Codex / Gemini 진입점
+        ├── agents/openai.yaml
+        └── references/                              # 00-loop-control + 10-orchestrator + 20-implementer + 30-reviewer + 40-scoring + 90-test
 ```
 
 ## 메모리 / 선택 의존

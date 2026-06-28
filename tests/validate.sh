@@ -24,6 +24,8 @@ for f in \
   CONTRIBUTING.md SECURITY.md CODE_OF_CONDUCT.md \
   commands/under-claw-jarvis-plan.md \
   skills/under-claw-jarvis-plan/SKILL.md \
+  skills/under-claw-jarvis-plan/GEMINI.md \
+  skills/under-claw-jarvis-plan/references/05-host-map.md \
   skills/under-claw-jarvis-plan/agents/openai.yaml \
   skills/under-claw-jarvis-plan/README.md \
   .claude-plugin/plugin.json .claude-plugin/marketplace.json \
@@ -36,6 +38,28 @@ echo "▶ 2. reference 모듈 9개"
 for n in 00-karpathy 10-understand 20-plan 30-implement 40-review 50-peer-collab 60-skill-orchestration 70-planning 90-test; do
   f="skills/under-claw-jarvis-plan/references/$n.md"
   [[ -f "$f" ]] && ok "$n" || bad "$f 없음"
+done
+
+echo "▶ 2b. loop 스킬 진입점 + reference"
+for f in \
+  commands/under-claw-jarvis-plan-loop.md \
+  skills/under-claw-jarvis-plan-loop/SKILL.md \
+  skills/under-claw-jarvis-plan-loop/GEMINI.md \
+  skills/under-claw-jarvis-plan-loop/agents/openai.yaml ; do
+  [[ -f "$f" ]] && ok "$f" || bad "$f 없음"
+done
+for n in 00-loop-control 10-orchestrator 20-implementer 30-reviewer 40-scoring 90-test; do
+  f="skills/under-claw-jarvis-plan-loop/references/$n.md"
+  [[ -f "$f" ]] && ok "loop:$n" || bad "$f 없음"
+done
+loop_cmd="commands/under-claw-jarvis-plan-loop.md"
+grep -q "9.5" "$loop_cmd" && ok "loop: 9.5 게이트 명시" || bad "loop: 9.5 게이트 누락"
+grep -q "검수 분리" "$loop_cmd" && ok "loop: 검수 분리 원칙" || bad "loop: 검수 분리 원칙 누락"
+grep -q "under-claw-jarvis-plan" skills/under-claw-jarvis-plan-loop/references/20-implementer.md \
+  && ok "loop: 베이스 스킬 연동" || bad "loop: 베이스 연동 누락"
+loop_fm="$(awk 'NR==1&&/^---/{f=1;next} f&&/^---/{exit} f' "$loop_cmd")"
+for k in name license description; do
+  grep -q "^$k:" <<<"$loop_fm" && ok "loop.frontmatter.$k" || bad "loop.frontmatter.$k 누락"
 done
 
 echo "▶ 3. command / Codex skill frontmatter"
@@ -51,6 +75,10 @@ grep -q 'display_name:' skills/under-claw-jarvis-plan/agents/openai.yaml \
   && ok "codex.openai.display_name" || bad "codex.openai.display_name 누락"
 grep -q 'default_prompt: "Use \$under-claw-jarvis-plan' skills/under-claw-jarvis-plan/agents/openai.yaml \
   && ok "codex.openai.default_prompt" || bad "codex.openai.default_prompt 누락"
+gemini_fm="$(awk 'NR==1&&/^---/{f=1;next} f&&/^---/{exit} f' skills/under-claw-jarvis-plan/GEMINI.md)"
+for k in name description; do
+  grep -q "^$k:" <<<"$gemini_fm" && ok "gemini.frontmatter.$k" || bad "gemini.frontmatter.$k 누락"
+done
 
 echo "▶ 4. JSON 매니페스트 유효성 (claude/cursor/copilot + marketplace)"
 "$PY" - <<'PY' && ok "모든 매니페스트 유효" || bad "JSON 파싱/필드 오류"
@@ -116,6 +144,19 @@ echo "▶ 9. Codex 설치 문서화"
 grep -q -- "--codex-only" install.sh && ok "install.sh: --codex-only" || bad "install.sh: --codex-only 누락"
 grep -q -- "--codex-only" README.md  && ok "README.md: Codex 설치" || bad "README.md: Codex 설치 누락"
 grep -q -- "--codex-only" README.en.md && ok "README.en.md: Codex install" || bad "README.en.md: Codex install 누락"
+
+echo "▶ 10. Gemini / 범용 호스트 설치 문서화"
+grep -q -- "--gemini-only" install.sh  && ok "install.sh: --gemini-only" || bad "install.sh: --gemini-only 누락"
+grep -q -- "--gemini-only" README.md   && ok "README.md: Gemini 설치" || bad "README.md: Gemini 설치 누락"
+grep -q -- "--gemini-only" README.en.md && ok "README.en.md: Gemini install" || bad "README.en.md: Gemini install 누락"
+grep -q "05-host-map" skills/under-claw-jarvis-plan/SKILL.md && ok "SKILL.md: host-map 포인터" || bad "SKILL.md: host-map 포인터 누락"
+grep -q "05-host-map" commands/under-claw-jarvis-plan.md && ok "command: host-map 포인터" || bad "command: host-map 포인터 누락"
+
+echo "▶ 11. 도메인 범용(개발 외 — 기획/분석/경제계획) 명시"
+for f in commands/under-claw-jarvis-plan.md skills/under-claw-jarvis-plan/SKILL.md skills/under-claw-jarvis-plan/GEMINI.md \
+         commands/under-claw-jarvis-plan-loop.md skills/under-claw-jarvis-plan-loop/SKILL.md skills/under-claw-jarvis-plan-loop/GEMINI.md; do
+  grep -q "경제계획" "$f" && grep -q "기획" "$f" && ok "domain-general: $f" || bad "$f: 비개발 도메인(기획/경제계획) 미명시"
+done
 
 echo
 echo "── 결과: PASS=$PASS  FAIL=$FAIL ──"

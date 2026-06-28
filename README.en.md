@@ -49,6 +49,19 @@ To install Claude and Codex support together, pass `--codex`:
 curl -fsSL https://raw.githubusercontent.com/strong1133/under-claw-jarvis-plan/master/install.sh | bash -s -- --codex
 ```
 
+### Gemini
+Install as a Gemini user skill:
+```bash
+curl -fsSL https://raw.githubusercontent.com/strong1133/under-claw-jarvis-plan/master/install.sh | bash -s -- --gemini-only
+```
+It installs into `${GEMINI_HOME:-~/.gemini}/skills/under-claw-jarvis-plan` with `GEMINI.md` as the entry point. Pass `--gemini` to install alongside Claude.
+
+### Other agents (universal)
+The methodology (`references/`) is **agent-neutral**. The only host-dependent parts are the names of three tools —
+task tracking, skill invocation, and multi-agent fan-out — and their mapping plus fallbacks are captured as data in
+`references/05-host-map.md`. An agent without a dedicated entry point still runs via the generic-LLM fallback by loading
+whichever of `SKILL.md` / `GEMINI.md` is available.
+
 ---
 
 ## Design philosophy (summary)
@@ -98,6 +111,24 @@ $under-claw-jarvis-plan test   # Codex self-diagnostic (read-only)
 - **Solo Claude (default)**: council = current-session `Agent` / `Workflow` subagents. No extra tooling.
 - **Second-model peer (optional)**: with another model present (e.g. 2-pane Claude+Codex), it extends to cross-model peer collaboration.
 
+## Loop variant — `under-claw-jarvis-plan-loop` (self-converging)
+Runs the base skill as **one iteration**, and after each round a **separate, independent reviewer session**
+scores compliance with the original requirements and the project's source patterns on a **10-point scale**.
+The loop **terminates only when the score exceeds 9.5** (otherwise the gap list feeds the next round — Reflexion).
+```
+/under-claw-jarvis-plan-loop {requirements}        # self-converge to the 9.5 gate (--max-rounds N, --target X.X)
+$under-claw-jarvis-plan-loop {requirements}        # Codex
+/under-claw-jarvis-plan-loop test                  # self-diagnostic (read-only, no loop run)
+```
+- **3 roles = 3 separate sessions** (reviewer-separation principle):
+  ① Loop orchestrator (main) — drives rounds, hands deliverables to review, decides termination;
+  ② Reviewer (**a session distinct from implementer and orchestrator**) — adversarial 10-point scoring;
+  ③ Implementer (**fresh session per round**) — completes the base under-claw-jarvis-plan, then reports back.
+- **Rubric**: D1 requirement fidelity 4.0 / D2 correctness 3.0 / D3 convention-pattern (source-pattern, generalized) 2.0 / D4 quality-simplicity 1.0.
+- **Safety**: MAX_ROUNDS cap (default 5) + plateau detection (gain < 0.2) → no infinite loops; escalate on non-convergence.
+- **Domain-agnostic**: applies to file creation, analysis, planning, economic modeling — not just code. Personas and
+  system prompts live in `skills/under-claw-jarvis-plan-loop/references/`.
+
 ## Per-stage skill customization (skill-map)
 The core map (`60`) lists only **skill *types*** so it stays environment-agnostic. To bind your **concrete**
 skills per stage, declare a `skill-map` (see `70-planning`):
@@ -140,11 +171,18 @@ under-claw-jarvis-plan/
 ├── CONTRIBUTING.md · SECURITY.md · CODE_OF_CONDUCT.md
 ├── examples/skill-map.example.md                    # per-stage skill map template
 ├── tests/validate.sh · .github/workflows/ci.yml     # tests + CI
-├── commands/under-claw-jarvis-plan.md               # /under-claw-jarvis-plan entry point
-└── skills/under-claw-jarvis-plan/
-    ├── SKILL.md                                     # Codex $under-claw-jarvis-plan entry point
-    ├── agents/openai.yaml                           # Codex UI metadata
-    └── references/                                  # 00 … 60 + 70-planning + 90-test (9 modules)
+├── commands/
+│   ├── under-claw-jarvis-plan.md                    # /under-claw-jarvis-plan entry point
+│   └── under-claw-jarvis-plan-loop.md               # /under-claw-jarvis-plan-loop entry point (loop)
+└── skills/
+    ├── under-claw-jarvis-plan/
+    │   ├── SKILL.md · GEMINI.md                     # Codex / Gemini entry points
+    │   ├── agents/openai.yaml                       # Codex UI metadata
+    │   └── references/                              # 00 + 05-host-map + 10 … 70 + 90 (methodology + host adapter)
+    └── under-claw-jarvis-plan-loop/                 # loop variant (base = under-claw-jarvis-plan)
+        ├── SKILL.md · GEMINI.md                     # Codex / Gemini entry points
+        ├── agents/openai.yaml
+        └── references/                              # 00-loop-control + 10-orchestrator + 20-implementer + 30-reviewer + 40-scoring + 90-test
 ```
 
 ## Memory / optional deps

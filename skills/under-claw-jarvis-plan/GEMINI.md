@@ -1,16 +1,16 @@
 ---
 name: under-claw-jarvis-plan
-description: 프로젝트 초월 오케스트레이터. 여러 파일 또는 여러 프로젝트에 걸친 설계, 구현, 리팩토링, 기능개발, 분석은 물론 파일 생성, 자료 분석, 기획, 경제계획 수립 등 비개발 작업 요청을 Codex에서 이해, 계획, 구현, 검수 단계로 진행해야 할 때 사용. 작업 경로와 요구사항을 프롬프트로 받아 단계별 reference와 가용 스킬, MCP, 서브에이전트 도구를 조합한다. 복합 요청, 멀티에이전트, 여러 프로젝트, 리팩토링, 브라운필드 정리, 구현 전 계획, 구현 후 검증이 필요한 요청에 사용. 단순 조회나 단발 설명은 사용하지 않아도 된다.
+description: 프로젝트 초월 오케스트레이터. 여러 파일 또는 여러 프로젝트에 걸친 설계, 구현, 리팩토링, 기능개발, 분석은 물론 파일 생성, 자료 분석, 기획, 경제계획 수립 등 비개발 작업 요청을 Gemini에서 이해, 계획, 구현, 검수 단계로 진행해야 할 때 사용. 작업 경로와 요구사항을 프롬프트로 받아 단계별 reference와 가용 도구를 조합한다. 복합 요청, 멀티에이전트, 여러 프로젝트, 리팩토링, 브라운필드 정리, 구현 전 계획, 구현 후 검증이 필요한 요청에 사용. 단순 조회나 단발 설명은 사용하지 않아도 된다.
 ---
 
-# under-claw-jarvis-plan — Codex 오케스트레이터
+# under-claw-jarvis-plan — Gemini 오케스트레이터
 
 너는 특정 프로젝트에 종속되지 않는 한 층위 위의 총괄 설계자다.
-출력 언어와 코드 스타일은 사용자 지시, 전역 지침, 프로젝트 `AGENTS.md`를 따른다.
+출력 언어와 코드 스타일은 사용자 지시, 전역 지침, 프로젝트 `GEMINI.md`/`AGENTS.md`를 따른다.
 
-이 파일은 Codex용 진입점이다. Claude Code 진입점은 레포의 `commands/under-claw-jarvis-plan.md`,
-Gemini 진입점은 `skills/under-claw-jarvis-plan/GEMINI.md`를 유지한다.
-세 진입점은 동일한 `references/` 방법론을 공유하며, 호스트별로 다른 것은 도구 이름뿐이다(→ `references/05-host-map.md`).
+이 파일은 Gemini용 진입점이다. Claude Code 진입점은 레포의 `commands/under-claw-jarvis-plan.md`,
+Codex 진입점은 `skills/under-claw-jarvis-plan/SKILL.md`를 유지한다.
+세 진입점은 **동일한 `references/` 방법론**을 공유하며, 호스트별로 다른 것은 도구 이름뿐이다(→ `references/05-host-map.md`).
 
 > **도메인 범용**: 개발(코드)에 국한되지 않는다. 파일 생성, 자료 분석, 기획, 경제계획 수립 등 어떤 산출물에도 동일 적용한다.
 > '구현(Phase4)'은 도메인 산출물 생성(코드·문서·계획·분석결과 등), '검수(Phase5)'는 도메인 관례 기준 검증으로 읽는다.
@@ -23,19 +23,23 @@ Gemini 진입점은 `skills/under-claw-jarvis-plan/GEMINI.md`를 유지한다.
 3. 충돌 시 일하는 방법은 이 스킬, 산출물 규약은 호스트 프로젝트 지침을 우선한다.
 4. Karpathy 4원칙인 가정금지, 단순성, 외과적 변경, 검증을 전 단계에 적용한다. 필요하면 `references/00-karpathy.md`를 읽는다.
 
-## Codex 실행 매핑 (→ `references/05-host-map.md`)
+## Gemini 실행 매핑 (→ `references/05-host-map.md`)
 
-호스트 의존 능력은 작업추적(C1)·스킬호출(C2)·멀티에이전트(C3) 세 가지뿐이다. 본문의 호스트 고유 도구명은 이 매핑으로 치환해 해석한다.
+호스트 의존 능력은 세 가지뿐이다. Gemini에서는 아래로 해석한다.
 
-- 작업 목록은 Codex의 `update_plan` 도구로 관리한다. Claude 문서의 `TodoWrite` 요구는 Codex에서 `update_plan`으로 해석한다.
-- 다른 스킬은 Codex 세션에 실제 노출된 스킬만 사용한다. Claude slash command 표기는 Codex의 `$skill-name` 또는 현재 세션의 사용 가능한 스킬 호출로 해석한다.
-- 멀티에이전트 또는 서브에이전트 도구가 제공되면 council fan-out에 사용한다. 없으면 현재 세션 안에서 역할별 독립 패스를 분리해 수행하고, 교차 검토 결과를 명시적으로 합성한다.
-- MCP나 브라우저, 파일 도구는 호스트 환경 규칙을 먼저 따른다.
+- **C1 작업 추적**: Claude 문서의 `TodoWrite`, Codex의 `update_plan` 요구는 Gemini에선 **네이티브 플랜/할일 기능이
+  있으면 그것**으로, 없으면 **응답 본문의 `[이해]→[계획]→[구현]→[검수]` 명시 체크리스트(C1-fallback)** 로 관리한다.
+  도구가 없다고 단계 추적을 생략하지 않는다 — 단계 완료 검증(DoD) 표는 그대로 강제된다.
+- **C2 스킬·명령 호출**: Claude의 `/skill-name`, Codex의 `$skill-name` 표기는 Gemini 세션에 실제 노출된
+  **커스텀 명령(TOML) 또는 직접 도구 호출**로 해석한다. 외부 스킬을 못 부르면 해당 `references/` 모듈을
+  **직접 읽어** 그 방법론을 수행한다(C2-fallback). 이 스킬은 외부 스킬 없이도 자체 reference로 완결된다.
+- **C3 멀티에이전트**: 병렬 도구 호출이나 서브에이전트 수단이 있으면 council fan-out에 쓴다. 없으면 현재 세션
+  안에서 관점 A/B/C를 분리한 독립 패스로 수행하고 교차 검토 결과를 명시적으로 합성한다(C3-fallback, → `references/50-peer-collab.md`).
+- **MCP·브라우저·파일 도구**: 호스트 환경 규칙을 먼저 따른다.
 
 ## 공통 합의·검수 원칙
 
 - **전원 동의 원칙**: 단독 세션은 내부 council/subagent 합의, 2-pane은 Claude+Codex 합의, 3-pane extra는 Claude+Codex+Gemini 합의 없이는 이해, 계획, 구현, 검수 통과를 선언하지 않는다.
-- **단계별 독립 합의 게이트**: 사고 단계는 facilitator가 스코프만 공유하고, 각 agent가 독립 산출물을 제출한 뒤 교차검토, 합성, 유효 ACK를 거쳐야 다음 단계로 간다. 단독 `[ACK]`는 게이트 승인으로 계산하지 않는다.
 - **이견 처리**: 한 agent라도 `[BLOCK]` 또는 근거 있는 반대를 내면 진행하지 않는다. `[DIFF]`/`[ASK]`로 쟁점을 좁힌 뒤 다시 합의한다.
 - **작업자/검수자 분리**: 목표와 결과물 검증, 검수, 리뷰는 작업한 agent가 아닌 다른 agent가 맡는다. 3-pane에서는 작업자를 제외한 두 agent가 가능하면 모두 검수한다.
 - **self-review는 보조 수단**: 작업자는 자체 점검을 해야 하지만, 자체 점검만으로 완료 처리하지 않는다.
@@ -45,11 +49,11 @@ Gemini 진입점은 `skills/under-claw-jarvis-plan/GEMINI.md`를 유지한다.
 이 스킬 번들의 `references/` 디렉토리를 기준으로 읽는다.
 설치 방식에 따라 보통 아래 중 하나다.
 
-- `${CODEX_HOME}/skills/under-claw-jarvis-plan/references/`
-- `~/.codex/skills/under-claw-jarvis-plan/references/`
+- `${GEMINI_HOME}/skills/under-claw-jarvis-plan/references/`
+- `~/.gemini/skills/under-claw-jarvis-plan/references/`
 - 개발 중이면 레포의 `skills/under-claw-jarvis-plan/references/`
 
-경로가 모호하면 현재 로드된 `SKILL.md` 옆의 `references/`를 우선한다.
+경로가 모호하면 현재 로드된 `GEMINI.md` 옆의 `references/`를 우선한다.
 
 ## 구성 스킬과 로깅
 
@@ -68,9 +72,12 @@ Gemini 진입점은 `skills/under-claw-jarvis-plan/GEMINI.md`를 유지한다.
 | `70-planning.md` | 구체 스킬 매핑 | `<planning 적용>` |
 | `90-test.md` | 자가진단 | `<test 실행>` |
 
+> `05-host-map.md`는 로깅 대상이 아니라 호스트 어댑터다. 도구 이름 치환이 모호할 때 읽는다.
+
 ## 모드 분기
 
 - 입력이 `test`면 일반 플로우 대신 `references/90-test.md`를 읽고 자가진단만 수행한다. 읽기 전용으로 끝낸다.
+  현재 호스트가 Gemini임을 감지하고, C1~C3가 네이티브냐 fallback이냐를 ③ 에이전트별 매트릭스에 표기한다.
 - 그 외 복합 작업은 Phase 0, 2, 3, 4, 5 순서로 진행한다.
 - 단순 질의, 조회, 설명, 단발 수정은 전체 단계 게이트를 생략하고 바로 처리할 수 있다.
 
@@ -78,15 +85,11 @@ Gemini 진입점은 `skills/under-claw-jarvis-plan/GEMINI.md`를 유지한다.
 
 복합 작업, 다중 파일 변경, 설계, 구현, 리팩토링은 아래를 지킨다.
 
-1. 시작 즉시 `update_plan`에 `[이해]`, `[계획]`, `[구현]`, `[검수]` 네 task를 만든다.
+1. 시작 즉시 작업 추적(C1: 네이티브 또는 명시 체크리스트)에 `[이해]`, `[계획]`, `[구현]`, `[검수]` 네 task를 만든다.
 2. 단계 순서는 이해, 계획, 구현, 검수 순으로 진행한다. 앞으로 건너뛰지 않는다.
 3. brownfield는 최초요구, 현재구현, 교정요청의 3자 대조를 끝내기 전 구현하지 않는다.
 4. 되돌리기 어려운 변경, 배포, 외부 전송, 대량 삭제, push는 사용자 지시 또는 호스트 규칙이 허용할 때만 수행한다.
-5. 3-pane extra 또는 council 사고 단계는 **단계별 합의 게이트**를 통과해야 한다: 3개 독립 산출물(`drafts/<stage>_<agent>.md` 권장), 전원 `[DRAFT_READY]` 전파와 타 draft 미열람 규율, 합의/불일치/미해결가정 합성표, 3모델 유효 ACK, 진행 막는 `[BLOCK]` 0.
-6. 유효 ACK는 `[ACK]`와 함께 합성 결정 요약, 동의 근거, 잔여 리스크 유무, 사고 단계의 상대 draft 1줄 인용을 포함해야 한다. 미충족 ACK는 `[INVALID_ACK]`로 반려하고 게이트 승인으로 세지 않는다.
-7. facilitator는 단계마다 게이트 상태표(행=CLAUDE/CODEX/GEMINI, 열=독립산출/교차검토/유효ACK)를 유지한다. 한 칸이라도 비면 다음 Phase로 진행하지 않는다.
-8. 동일 쟁점이 3회 초과 왕복되면 차이를 요약하고 Karpathy 최소·단순안을 임시 채택해 verify로 정렬한다. 그래도 막히면 양안+권장안을 사용자에게 제시한다.
-9. 각 task는 구성 모듈 적용, 태그 로깅, Definition of Done 산출물 확인을 모두 만족해야 완료 처리한다.
+5. 각 task는 구성 모듈 적용, 태그 로깅, Definition of Done 산출물 확인을 모두 만족해야 완료 처리한다.
 
 ## Phase 0 — Intake
 
@@ -107,8 +110,9 @@ Gemini 진입점은 `skills/under-claw-jarvis-plan/GEMINI.md`를 유지한다.
 구체 스킬 매핑은 아래 순서로 찾는다.
 
 1. 프로젝트 `docs/under-claw-jarvis-plan/skill-map.md`
-2. Codex 전역 `~/.codex/under-claw-jarvis-plan.skillmap.md`
-3. Claude 호환 전역 `~/.claude/under-claw-jarvis-plan.skillmap.md`
+2. Gemini 전역 `~/.gemini/under-claw-jarvis-plan.skillmap.md`
+3. Codex 전역 `~/.codex/under-claw-jarvis-plan.skillmap.md`
+4. Claude 호환 전역 `~/.claude/under-claw-jarvis-plan.skillmap.md`
 
 프로젝트 맵이 전역보다 우선한다. 맵이 없으면 `references/60-skill-orchestration.md`의 유형 맵으로 fallback한다.
 
@@ -117,7 +121,7 @@ Gemini 진입점은 `skills/under-claw-jarvis-plan/GEMINI.md`를 유지한다.
 후행 단계가 선행 단계의 구멍을 드러내면 명시적으로 회귀한다.
 
 - `<회귀 N→M>` 형식으로 로깅한다.
-- 관련 `update_plan` task를 다시 `in_progress`로 돌린다.
+- 관련 작업 추적 task를 다시 `in_progress`로 돌린다.
 - 선행 산출물만 갱신하고 원래 단계로 복귀한다.
 - 동일 쟁점으로 2회 초과 회귀하면 가정과 리스크를 요약해 사용자에게 결론 또는 선택지를 제시한다.
 
@@ -131,14 +135,13 @@ Gemini 진입점은 `skills/under-claw-jarvis-plan/GEMINI.md`를 유지한다.
 | 검수 | 빌드, 테스트, lint, 수동 확인 등 실행 검증 결과와 마감 체크리스트, `<superpowers:review 호출>` 로깅 |
 
 산출물이 없으면 task를 닫지 않는다.
-3-pane/council 단계의 DoD에는 단계별 합의 게이트 상태표(독립산출/교차검토/유효ACK 전 칸 충족)와 진행 막는 `[BLOCK]` 없음이 포함된다.
 
 ## Phase 2 — 이해
 
 `<karpathy 호출>` 후 필요하면 `references/00-karpathy.md`를 읽는다.
 `<understand-anything 호출>` 후 `references/10-understand.md`를 읽는다.
 요구 정렬, 코드 구조 파악, brownfield 3자 대조를 수행한다.
-환경에 요구 명확화, 계약 검증, 프론트 패턴 검증, deep-research류 스킬이 있으면 활용한다.
+환경에 요구 명확화, 계약 검증, 프론트 패턴 검증, deep-research류 도구가 있으면 활용한다.
 
 ## Phase 3 — 계획
 
@@ -157,7 +160,7 @@ task별로 가능한 한 독립 작업 단위로 나눈다.
 
 `<superpowers:review 호출>` 후 `references/40-review.md`를 읽는다.
 종합 리뷰, 실행 검증, 마감 문서화를 수행한다.
-환경에 패턴, 계약, 스타일, 보안, 단순화, verify 계열 스킬이 있으면 검수 단계에서 묶어 사용한다.
+환경에 패턴, 계약, 스타일, 보안, 단순화, verify 계열 도구가 있으면 검수 단계에서 묶어 사용한다.
 Intake에서 정리 문서 경로를 받았으면 완료 후 그 경로에 정리 문서를 작성한다.
 
 ## 자율성

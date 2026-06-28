@@ -1,0 +1,4 @@
+interface:
+  display_name: "Under Claw Jarvis Plan — Loop"
+  short_description: "Self-converging loop over under-claw-jarvis-plan, gated at 9.5/10 by an independent reviewer"
+  default_prompt: "Use $under-claw-jarvis-plan-loop to iterate this until an independent reviewer scores it above 9.5/10."
