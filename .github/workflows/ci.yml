@@ -13,10 +13,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Check shell syntax
-        run: bash -n install.sh tests/validate.sh tests/install.sh
+        run: bash -n install.sh tests/*.sh skills/under-claw-meta-prompt/scripts/*.sh
       - name: Validate package contracts
         run: bash tests/validate.sh
       - name: Test isolated installs
         run: bash tests/install.sh
+      - name: Test meta-prompt file handling
+        run: bash tests/meta-prompt.sh
       - name: Run ShellCheck
         run: shellcheck install.sh tests/*.sh

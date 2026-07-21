@@ -1,15 +1,17 @@
 #!/usr/bin/env bash
-# under-claw-jarvis-plan 설치 — Claude 스킬 + 의존(외부 참조) 스킬, 또는 Codex 스킬을 설치한다.
+# under-claw 3스킬 설치 — 기본은 Claude + Codex, 외부 참조 스킬은 명시적 opt-in이다.
 #
 # 한 줄 설치(터미널):
 #   curl -fsSL https://raw.githubusercontent.com/strong1133/under-claw-jarvis-plan/master/install.sh | bash
-#   → Claude: under-claw-jarvis-plan + under-claw-jarvis-plan-loop + Karpathy / Superpowers / Understand-Anything / skill-creator 까지 모두 설치
+#   → Claude + Codex에 plan + loop + meta-prompt 세 스킬 설치/업데이트
 #
 # 옵션:
-#   ./install.sh                  기본 = Claude 스킬 + 의존(외부 참조) 스킬 모두 설치
-#   ./install.sh --skill-only     Claude under-claw-jarvis-plan 스킬만(의존 제외)
+#   ./install.sh                  기본 = Claude + Codex에 세 스킬 설치/업데이트
+#   ./install.sh --skill-only     Claude에만 설치(하위호환)
+#   ./install.sh --claude-only    Claude에만 설치
+#   ./install.sh --with-externals 기본 설치 + Claude 외부 참조 스킬(opt-in)
 #   ./install.sh --externals-only Claude 의존(외부 참조) 스킬만
-#   ./install.sh --codex          Claude 기본 설치 + Codex 스킬도 설치
+#   ./install.sh --codex          기본 설치와 동일(하위호환)
 #   ./install.sh --codex-only     Codex 스킬만 ${CODEX_HOME:-~/.codex}/skills 에 설치
 #   ./install.sh --gemini         Claude 기본 설치 + Gemini 스킬도 설치
 #   ./install.sh --gemini-only    Gemini 스킬만 ${GEMINI_HOME:-~/.gemini}/skills 에 설치
@@ -85,13 +87,13 @@ if [[ -n "$WITH_EXTERNALS_OVERRIDE" && ( "$MODE" == "skill-only" || "$MODE" == "
 fi
 
 INSTALL_CLAUDE=1
-INSTALL_CODEX="$ADD_CODEX"
+INSTALL_CODEX=1
 INSTALL_GEMINI="$ADD_GEMINI"
-WITH_EXTERNALS=1
+WITH_EXTERNALS=0
 EXTERNALS_ONLY=0
 case "$MODE" in
-  default|claude-only) ;;
-  skill-only) INSTALL_CLAUDE=1; WITH_EXTERNALS=0 ;;
+  default) ;;
+  claude-only|skill-only) INSTALL_CLAUDE=1; INSTALL_CODEX=0; INSTALL_GEMINI=0; WITH_EXTERNALS=0 ;;
   externals-only) INSTALL_CLAUDE=0; INSTALL_CODEX=0; INSTALL_GEMINI=0; WITH_EXTERNALS=1; EXTERNALS_ONLY=1 ;;
   codex-only) INSTALL_CLAUDE=0; INSTALL_CODEX=1; INSTALL_GEMINI=0; WITH_EXTERNALS=0 ;;
   gemini-only) INSTALL_CLAUDE=0; INSTALL_CODEX=0; INSTALL_GEMINI=1; WITH_EXTERNALS=0 ;;
@@ -146,37 +148,49 @@ install_tree() {
   fi
 }
 
-# 베이스 + 루프 스킬을 한 묶음으로 설치한다.
-SKILLS="under-claw-jarvis-plan under-claw-jarvis-plan-loop"
+# 세 독립 스킬의 단일 설치 목록이다. 기존 대상은 백업 후 현재 레포 사본으로 교체한다.
+SKILLS="under-claw-jarvis-plan under-claw-jarvis-plan-loop under-claw-meta-prompt"
 
 install_skill() {
-  echo "▶ under-claw-jarvis-plan (+ loop) 스킬 설치"
+  echo "▶ under-claw 스킬 설치 (plan + loop + meta-prompt)"
   mkdir -p "$CLAUDE_DEST/commands" "$CLAUDE_DEST/skills"
-  for cmd in under-claw-jarvis-plan under-claw-jarvis-plan-loop; do
+  local cmd dest action
+  for cmd in $SKILLS; do
+    dest="$CLAUDE_DEST/commands/$cmd.md"; action="설치"
+    [[ -e "$dest" || -L "$dest" ]] && action="업데이트"
     install_file "$SRC_DIR/commands/$cmd.md" "$CLAUDE_DEST/commands/$cmd.md" "claude/commands" || return 1
-    echo "  [설치] ~/.claude/commands/$cmd.md"
+    echo "  [$action] ~/.claude/commands/$cmd.md"
   done
+  local s
   for s in $SKILLS; do
+    dest="$CLAUDE_DEST/skills/$s"; action="설치"
+    [[ -e "$dest" || -L "$dest" ]] && action="업데이트"
     install_tree "$SRC_DIR/skills/$s" "$CLAUDE_DEST/skills/$s" "claude/skills" "SKILL.md" || return 1
-    echo "  [설치] ~/.claude/skills/$s/ ($(find "$CLAUDE_DEST/skills/$s" -name '*.md' | wc -l | tr -d ' ')개)"
+    echo "  [$action] ~/.claude/skills/$s/ ($(find "$CLAUDE_DEST/skills/$s" -name '*.md' | wc -l | tr -d ' ')개)"
   done
 }
 
 install_codex_skill() {
-  echo "▶ Codex under-claw-jarvis-plan (+ loop) 스킬 설치"
+  echo "▶ Codex under-claw 스킬 설치 (plan + loop + meta-prompt)"
   mkdir -p "$CODEX_DEST"
+  local s dest action
   for s in $SKILLS; do
+    dest="$CODEX_DEST/$s"; action="설치"
+    [[ -e "$dest" || -L "$dest" ]] && action="업데이트"
     install_tree "$SRC_DIR/skills/$s" "$CODEX_DEST/$s" "codex/skills" "SKILL.md" || return 1
-    echo "  [설치] $CODEX_DEST/$s/ ($(find "$CODEX_DEST/$s" -name '*.md' | wc -l | tr -d ' ')개)"
+    echo "  [$action] $CODEX_DEST/$s/ ($(find "$CODEX_DEST/$s" -name '*.md' | wc -l | tr -d ' ')개)"
   done
 }
 
 install_gemini_skill() {
-  echo "▶ Gemini under-claw-jarvis-plan (+ loop) 스킬 설치"
+  echo "▶ Gemini under-claw 스킬 설치 (plan + loop + meta-prompt)"
   mkdir -p "$GEMINI_DEST"
+  local s dest action
   for s in $SKILLS; do
+    dest="$GEMINI_DEST/$s"; action="설치"
+    [[ -e "$dest" || -L "$dest" ]] && action="업데이트"
     install_tree "$SRC_DIR/skills/$s" "$GEMINI_DEST/$s" "gemini/skills" "GEMINI.md" || return 1
-    echo "  [설치] $GEMINI_DEST/$s/ (진입점: GEMINI.md)"
+    echo "  [$action] $GEMINI_DEST/$s/ (진입점: GEMINI.md)"
   done
 }
 
@@ -226,8 +240,20 @@ if [[ "$INSTALL_GEMINI" == "1" ]]; then install_gemini_skill; fi
 if [[ "$WITH_EXTERNALS" == "1" ]]; then install_externals; fi
 [[ -n "$BACKUP_ROOT" && -d "$BACKUP_ROOT" ]] && echo "기존 파일 백업: $BACKUP_ROOT"
 [[ "$WITH_EXTERNALS" == "1" ]] && echo "Claude 의존(외부 참조) 스킬 포함 설치 완료." || echo "의존 제외 설치."
-[[ "$INSTALL_CODEX" == "1" ]] && echo 'Codex 설치 완료. 새 Codex 세션에서 $under-claw-jarvis-plan 사용 가능.'
+[[ "$INSTALL_CODEX" == "1" ]] && echo 'Codex 설치 완료. 새 세션에서 $under-claw-jarvis-plan, $under-claw-jarvis-plan-loop, $under-claw-meta-prompt 사용 가능.'
 [[ "$INSTALL_GEMINI" == "1" ]] && echo 'Gemini 설치 완료. 새 Gemini 세션에서 under-claw-jarvis-plan 진입점(GEMINI.md) 사용 가능.'
-[[ "$INSTALL_CLAUDE" == "1" || "$WITH_EXTERNALS" == "1" ]] && echo "완료. 새 Claude 세션에서 /under-claw-jarvis-plan 사용 가능."
+[[ "$INSTALL_CLAUDE" == "1" || "$WITH_EXTERNALS" == "1" ]] && echo "Claude 설치 완료. 새 세션에서 /under-claw-jarvis-plan, /under-claw-jarvis-plan-loop, /under-claw-meta-prompt 사용 가능."
 [[ "$INSTALL_CLAUDE" != "1" && "$WITH_EXTERNALS" != "1" ]] && echo "완료."
+
+if [[ "$INSTALL_CLAUDE" == "1" || "$INSTALL_CODEX" == "1" || "$INSTALL_GEMINI" == "1" ]]; then
+  echo
+  echo "under-claw-jarvis-plan"
+  echo "under-claw-jarvis-plan-loop"
+  echo "under-claw-meta-prompt"
+  echo
+  echo "제공 스킬"
+  echo "- under-claw-jarvis-plan: 복합 작업을 이해→계획→구현→검수 단계로 수행합니다."
+  echo "- under-claw-jarvis-plan-loop: 독립 검수 목표에 도달할 때까지 작업을 반복 개선합니다."
+  echo "- under-claw-meta-prompt: 질의를 일관된 실행 프롬프트로 만들고 필요하면 파일에 저장합니다."
+fi
 exit 0

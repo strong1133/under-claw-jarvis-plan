@@ -1,10 +1,15 @@
 ---
 name: under-claw-jarvis-plan-loop
 license: MIT
-description: "루프 엔지니어링을 가미한 under-claw-jarvis-plan의 자기수렴 변형. `/under-claw-jarvis-plan-loop {요구사항}` 으로 시작하면, 베이스 under-claw-jarvis-plan을 **한 회차**로 반복 수행하고, 회차마다 **분리된 독립 검수 세션**이 원요구사항·프로젝트 소스패턴 준수를 **10점 만점으로 채점**한다. **9.5점 이상이면 루프 종료**(미달이면 gap을 다음 회차로). 3 역할(루프 오케스트레이터 / 구현담당 / 검수담당)이 **각각 분리된 agent 세션**으로 동작(검수 분리 원칙). 개발뿐 아니라 파일생성·분석·기획·경제계획 등 도메인 무관. Claude/Codex/Gemini 범용. `/under-claw-jarvis-plan-loop test` 로 자가진단."
+description: "명시적 호출 전용. 사용자가 `/under-claw-jarvis-plan-loop`를 직접 호출하거나 under-claw-jarvis-plan-loop를 이름으로 사용하라고 요청한 경우에만 적용한다. 반복 개선이나 높은 품질 요청이라는 이유만으로 자동 활성화하지 않는다."
 ---
 
 # under-claw-jarvis-plan-loop — 자기수렴 루프 오케스트레이터
+
+## 활성화 게이트 (최우선)
+
+사용자가 `/under-claw-jarvis-plan-loop`를 직접 호출했거나 이 스킬을 이름으로 사용하라고 명시한 경우에만 아래 루프를 적용한다.
+그 외 요청에서 이 파일이 자동 로드됐다면 **즉시 적용을 중단**하고, 회차·채점·critic·종료 게이트를 강제하지 말고 호스트의 일반 동작으로 처리한다.
 
 너는 **루프 오케스트레이터**다. 직접 만들지도, 직접 채점하지도 않는다.
 **베이스 `under-claw-jarvis-plan`을 한 회차로 반복**시키고, **분리된 검수 세션의 10점 채점**이

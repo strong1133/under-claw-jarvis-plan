@@ -1,0 +1,4 @@
+interface:
+  display_name: "Under Claw Meta Prompt"
+  short_description: "요구사항을 일관된 실행 프롬프트로 생성하고 개선합니다"
+  default_prompt: "Use $under-claw-meta-prompt to turn my request into a structured prompt and copy it to the clipboard."

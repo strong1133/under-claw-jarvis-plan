@@ -23,6 +23,16 @@ for f in \
   LICENSE THIRD_PARTY_NOTICES.md README.md README.en.md install.sh \
   CONTRIBUTING.md SECURITY.md CODE_OF_CONDUCT.md \
   commands/under-claw-jarvis-plan.md \
+  commands/under-claw-meta-prompt.md \
+  skills/under-claw-meta-prompt/SKILL.md \
+  skills/under-claw-meta-prompt/GEMINI.md \
+  skills/under-claw-meta-prompt/agents/openai.yaml \
+  skills/under-claw-meta-prompt/assets/prompt-template.md \
+  skills/under-claw-meta-prompt/references/output-spec.md \
+  skills/under-claw-meta-prompt/references/quality-rubric.md \
+  skills/under-claw-meta-prompt/references/evaluation-cases.md \
+  skills/under-claw-meta-prompt/scripts/copy-to-clipboard.sh \
+  skills/under-claw-meta-prompt/scripts/save-prompt.sh \
   skills/under-claw-jarvis-plan/SKILL.md \
   skills/under-claw-jarvis-plan/GEMINI.md \
   skills/under-claw-jarvis-plan/references/05-host-map.md \
@@ -32,6 +42,41 @@ for f in \
   .cursor-plugin/plugin.json .copilot-plugin/plugin.json \
   examples/skill-map.example.md ; do
   [[ -f "$f" ]] && ok "$f" || bad "$f 없음"
+done
+
+echo "▶ 1b. meta-prompt 독립 실행 계약"
+META=skills/under-claw-meta-prompt/SKILL.md
+grep -q '명시적 호출 전용' "$META" && grep -q '자동 활성화하지 않는다' "$META" \
+  && ok "meta: 명시적 호출 전용" || bad "meta: 활성화 게이트 누락"
+grep -q '다른 under-claw 스킬을 호출하거나 전제로 삼지 않는다' "$META" \
+  && ok "meta: 다른 스킬과 독립" || bad "meta: 독립성 계약 누락"
+grep -q 'scripts/copy-to-clipboard.sh' "$META" && grep -q -- '-d <PATH>' "$META" \
+  && ok "meta: clipboard와 -d 모드" || bad "meta: 호출 모드 누락"
+grep -q '심볼릭 링크' "$META" \
+  && grep -q 'mktemp' skills/under-claw-meta-prompt/scripts/save-prompt.sh \
+  && grep -q 'mv -f' skills/under-claw-meta-prompt/scripts/save-prompt.sh \
+  && ok "meta: 안전한 파일 교체" || bad "meta: 파일 안전 계약 누락"
+grep -q '어떤 작업을 위한 프롬프트를 만들까요?' "$META" && grep -q '빈 질의가 아니다' "$META" \
+  && ok "meta: 빈 질의와 블록 질의 구분" || bad "meta: 빈 질의 계약 누락"
+grep -q '85점 미만' "$META" && grep -q '사실과 가정 분리' skills/under-claw-meta-prompt/references/quality-rubric.md \
+  && ok "meta: 품질 루브릭" || bad "meta: 품질 루브릭 누락"
+grep -q '고정 형태' skills/under-claw-meta-prompt/references/output-spec.md \
+  && grep -q '톤앤매너' skills/under-claw-meta-prompt/references/output-spec.md \
+  && ok "meta: 결과 형태와 톤 명세" || bad "meta: 결과·톤 명세 누락"
+grep -q 'scripts/save-prompt.sh' "$META" && grep -q '전체 프롬프트는 반복 출력하지 않는다' skills/under-claw-meta-prompt/references/output-spec.md \
+  && ok "meta: 결정적 저장과 비노출 응답" || bad "meta: 저장·응답 안전 계약 누락"
+grep -q '실제 사례 기반 평가' skills/under-claw-meta-prompt/references/quality-rubric.md \
+  && grep -q '인젝션 데이터' skills/under-claw-meta-prompt/references/evaluation-cases.md \
+  && ok "meta: 실제 평가 사례" || bad "meta: 평가 사례 누락"
+grep -q 'default_prompt: "Use \$under-claw-meta-prompt' skills/under-claw-meta-prompt/agents/openai.yaml \
+  && ok "meta: Codex UI 호출 토큰" || bad "meta: Codex UI 호출 토큰 누락"
+for h in 역할 목표 '작업 컨텍스트' 요구사항 제약사항 '실행 절차' '출력 형식' '품질 기준' 입력; do
+  grep -q "^# $h$" skills/under-claw-meta-prompt/assets/prompt-template.md \
+    && ok "meta.template: $h" || bad "meta.template: $h 누락"
+done
+for h in '확인된 사실' 가정 미확정; do
+  grep -q "^## $h$" skills/under-claw-meta-prompt/assets/prompt-template.md \
+    && ok "meta.template.context: $h" || bad "meta.template.context: $h 누락"
 done
 
 echo "▶ 2. reference 모듈 9개"
@@ -144,6 +189,17 @@ echo "▶ 9. Codex 설치 문서화"
 grep -q -- "--codex-only" install.sh && ok "install.sh: --codex-only" || bad "install.sh: --codex-only 누락"
 grep -q -- "--codex-only" README.md  && ok "README.md: Codex 설치" || bad "README.md: Codex 설치 누락"
 grep -q -- "--codex-only" README.en.md && ok "README.en.md: Codex install" || bad "README.en.md: Codex install 누락"
+grep -q '^INSTALL_CODEX=1$' install.sh && ok "install.sh: default includes Codex" || bad "install.sh: default Codex 누락"
+for s in under-claw-jarvis-plan under-claw-jarvis-plan-loop under-claw-meta-prompt; do
+  grep -Fq "echo \"- $s:" install.sh && ok "installer summary: $s" || bad "installer summary 누락: $s"
+done
+grep -q 'Claude + Codex' README.md && ok "README.md: 기본 이중 호스트 설치" || bad "README.md: 기본 이중 호스트 설치 누락"
+grep -q 'Claude + Codex' README.en.md && ok "README.en.md: default dual-host install" || bad "README.en.md: default dual-host install 누락"
+for doc in README.md README.en.md; do
+  for s in under-claw-jarvis-plan under-claw-jarvis-plan-loop under-claw-meta-prompt; do
+    grep -q "$s" "$doc" && ok "$doc bundle: $s" || bad "$doc bundle 누락: $s"
+  done
+done
 
 echo "▶ 10. Gemini / 범용 호스트 설치 문서화"
 grep -q -- "--gemini-only" install.sh  && ok "install.sh: --gemini-only" || bad "install.sh: --gemini-only 누락"
@@ -208,10 +264,27 @@ for binding in \
   'clone_pinned https://github.com/Egonex-AI/Understand-Anything understand-anything "$UNDERSTAND_ANYTHING_SHA"'; do
   grep -Fq "$binding" install.sh && ok "installer binding: $binding" || bad "installer binding 누락: $binding"
 done
-for f in tests/install.sh .github/workflows/ci.yml; do
+for f in tests/install.sh tests/meta-prompt.sh .github/workflows/ci.yml; do
   [[ -f "$f" ]] && ok "$f" || bad "$f 없음"
 done
 grep -q 'shellcheck install.sh tests/\*.sh' .github/workflows/ci.yml && ok "CI: shellcheck" || bad "CI: shellcheck 누락"
+
+echo "▶ 15. 명시적 호출 전용 activation 계약"
+for f in commands/under-claw-jarvis-plan.md commands/under-claw-jarvis-plan-loop.md \
+         skills/under-claw-jarvis-plan/SKILL.md skills/under-claw-jarvis-plan/GEMINI.md \
+         skills/under-claw-jarvis-plan-loop/SKILL.md skills/under-claw-jarvis-plan-loop/GEMINI.md; do
+  grep -q '명시적 호출 전용' "$f" && grep -q '활성화 게이트 (최우선)' "$f" \
+    && grep -q '자동.*적용을 중단\|자동.*활성화하지 않는다\|자동 선택하지 않는다' "$f" \
+    && ok "activation: $f explicit-only" || bad "$f: explicit-only 계약 누락"
+done
+if grep -q '반드시 이 스킬을 사용하라' commands/under-claw-jarvis-plan.md; then
+  bad "activation: 광범위 자동 트리거 문구 잔존"
+else
+  ok "activation: 광범위 자동 트리거 문구 없음"
+fi
+grep -q '^WITH_EXTERNALS=0$' install.sh && ok "installer: externals opt-in 기본값" || bad "installer: externals 기본 제외 누락"
+grep -q -- '--with-externals' README.md && grep -q '기본 설치에서 제외' README.md \
+  && ok "README: 외부 스킬 opt-in" || bad "README: 외부 스킬 opt-in 문서 누락"
 
 echo
 echo "── 결과: PASS=$PASS  FAIL=$FAIL ──"
