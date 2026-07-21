@@ -158,6 +158,61 @@ for f in commands/under-claw-jarvis-plan.md skills/under-claw-jarvis-plan/SKILL.
   grep -q "경제계획" "$f" && grep -q "기획" "$f" && ok "domain-general: $f" || bad "$f: 비개발 도메인(기획/경제계획) 미명시"
 done
 
+echo "▶ 12. loop 종료 의미 계약"
+LOOP_CONTROL=skills/under-claw-jarvis-plan-loop/references/00-loop-control.md
+LOOP_ORCHESTRATOR=skills/under-claw-jarvis-plan-loop/references/10-orchestrator.md
+grep -q '없으면 9.5를 `TARGET`' "$LOOP_CONTROL" && ok "loop: TARGET 단일 초기화" || bad "loop: TARGET 초기화 누락"
+grep -q '0.0~10.0 범위의 숫자' "$LOOP_CONTROL" && ok "loop: TARGET 값 검증" || bad "loop: TARGET 값 검증 누락"
+for f in "$LOOP_CONTROL" "$LOOP_ORCHESTRATOR"; do
+  grep -q 'score >= TARGET' "$f" && ok "loop: $f canonical 비교" || bad "loop: $f canonical 비교 누락"
+done
+if grep -RInE 'score[[:space:]]*>[[:space:]]*\{?TARGET|score[[:space:]]*≥[[:space:]]*9\.5' \
+  commands/under-claw-jarvis-plan-loop.md skills/under-claw-jarvis-plan-loop >/dev/null; then
+  bad "loop: 비정규 종료 비교 발견"
+else
+  ok "loop: 비정규 종료 비교 없음"
+fi
+
+echo "▶ 13. 실제 참여자 기반 합의 계약"
+for f in commands/under-claw-jarvis-plan.md skills/under-claw-jarvis-plan/SKILL.md \
+         skills/under-claw-jarvis-plan/GEMINI.md skills/under-claw-jarvis-plan/references/10-understand.md \
+         skills/under-claw-jarvis-plan/references/20-plan.md skills/under-claw-jarvis-plan/references/40-review.md \
+         skills/under-claw-jarvis-plan/references/50-peer-collab.md skills/under-claw-jarvis-plan/references/90-test.md; do
+  grep -q 'ACTIVE_PARTICIPANTS' "$f" && ok "participants: $f" || bad "$f: ACTIVE_PARTICIPANTS 누락"
+done
+grep -q 'DEGRADED_REVIEW' skills/under-claw-jarvis-plan/references/50-peer-collab.md \
+  && ok "participants: solo degraded review 계약" || bad "participants: solo degraded review 계약 누락"
+grep -q '역할 패스 기록 + 결정적 실행 검증' skills/under-claw-jarvis-plan/references/50-peer-collab.md \
+  && ok "participants: solo 대체 게이트" || bad "participants: solo 대체 게이트 누락"
+for f in commands/under-claw-jarvis-plan.md skills/under-claw-jarvis-plan/SKILL.md \
+         skills/under-claw-jarvis-plan/GEMINI.md skills/under-claw-jarvis-plan/references/40-review.md; do
+  grep -q 'solo.*DEGRADED_REVIEW\|DEGRADED_REVIEW.*solo' "$f" \
+    && ok "participants: $f solo hard-gate" || bad "$f: solo hard-gate 누락"
+done
+if grep -RInE '행=CLAUDE/CODEX/GEMINI|3모델 유효 ACK|3개 독립산출물' \
+  commands/under-claw-jarvis-plan.md skills/under-claw-jarvis-plan >/dev/null; then
+  bad "participants: 고정 3모델 게이트 발견"
+else
+  ok "participants: 고정 3모델 게이트 없음"
+fi
+
+echo "▶ 14. 설치 안전성·CI"
+for sha in 2c606141936f1eeef17fa3043a72095b4765b9c2 d884ae04edebef577e82ff7c4e143debd0bbec99 \
+           fa0fa64bdc967915dc8399e803be67759e1e62b8 2f24580ba076592a1a6d766e47590836436f30f6; do
+  grep -q "$sha" install.sh && ok "installer pin: $sha" || bad "installer pin 누락: $sha"
+done
+for binding in \
+  'clone_pinned https://github.com/multica-ai/andrej-karpathy-skills karpathy "$KARPATHY_SHA"' \
+  'clone_pinned https://github.com/obra/superpowers superpowers "$SUPERPOWERS_SHA"' \
+  'clone_pinned https://github.com/anthropics/skills anthropic-skills "$ANTHROPIC_SKILLS_SHA"' \
+  'clone_pinned https://github.com/Egonex-AI/Understand-Anything understand-anything "$UNDERSTAND_ANYTHING_SHA"'; do
+  grep -Fq "$binding" install.sh && ok "installer binding: $binding" || bad "installer binding 누락: $binding"
+done
+for f in tests/install.sh .github/workflows/ci.yml; do
+  [[ -f "$f" ]] && ok "$f" || bad "$f 없음"
+done
+grep -q 'shellcheck install.sh tests/\*.sh' .github/workflows/ci.yml && ok "CI: shellcheck" || bad "CI: shellcheck 누락"
+
 echo
 echo "── 결과: PASS=$PASS  FAIL=$FAIL ──"
 [[ "$FAIL" == 0 ]]

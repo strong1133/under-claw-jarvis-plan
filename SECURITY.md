@@ -27,10 +27,12 @@ no runtime service. The realistic risks are:
 - **Sensitive-data leakage** — the bundle must never contain credentials, personal paths,
   emails, or internal identifiers. `tests/validate.sh` includes a sensitive-data guard that
   CI runs on every push/PR; please keep it green and extend it for new patterns.
-- **Install-script safety** — `install.sh` backs up existing files before replacing them and
-  is idempotent. Review shell changes carefully; CI runs `shellcheck`.
-- **Supply chain** — `--with-externals` clones upstream skills over HTTPS from their official
-  repositories. Pin/verify sources before trusting them in sensitive environments.
+- **Install-script safety** — `install.sh` stages replacements and backs up existing files by host
+  before replacing them. Review shell changes carefully; CI runs isolated install tests and `shellcheck`.
+- **Supply chain** — external skills are fetched over HTTPS from their official repositories at
+  commit SHAs pinned in `install.sh`. Review pin updates before trusting them in sensitive environments.
+  The one-line installer and this repository's bootstrap still track `master` until immutable releases exist;
+  review a local clone before installation when that mutable entry point is unacceptable.
 
 ## Not vulnerabilities
 - The skill calling other installed skills by design.

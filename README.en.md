@@ -31,7 +31,9 @@ curl -fsSL https://raw.githubusercontent.com/strong1133/under-claw-jarvis-plan/m
 ```
 Installs under-claw-jarvis-plan **plus its dependency (external reference) skills**
 (Karpathy · Superpowers · Understand-Anything · skill-creator) into `~/.claude`. If the repo isn't present
-it auto-clones (bootstrap); existing files are backed up (idempotent & safe). Then use `/under-claw-jarvis-plan`.
+it auto-clones (bootstrap); existing files are backed up per host. External skills are pinned to verified
+commit SHAs; upgrades require an explicit pin change in `install.sh`. Then use `/under-claw-jarvis-plan`.
+The initial one-line `master/install.sh` download and this project's own bootstrap still track `master`; review and install a local clone in sensitive environments.
 
 - ⚠️ **Understand-Anything** is a pnpm plugin, so the installer prints **one manual step** at the end (optional — under-claw-jarvis-plan works without it).
 - Skill only (no deps): `… | bash -s -- --skill-only`
@@ -145,6 +147,8 @@ The map lives **outside** the install dir, so reinstalls/updates never wipe it.
 ```bash
 /under-claw-jarvis-plan test    # stage/skill/model matrix (read-only, no changes)
 bash tests/validate.sh          # structure / manifest / sensitive-data checks (also run in CI)
+bash tests/install.sh           # isolated install / backup / invalid-option behavior
+shellcheck install.sh tests/*.sh
 ```
 `VERIFY-peer-collab.md` contains an optional reproducible 2-pane peer-collaboration scenario (6 acceptance signals).
 

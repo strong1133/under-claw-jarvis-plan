@@ -30,12 +30,14 @@ tests/validate.sh  .github/workflows/ci.yml        # tests + CI
 ## Before opening a PR
 ```bash
 bash tests/validate.sh        # structure / manifests / attribution / sensitive-data guard
+bash tests/install.sh         # isolated install / backup / option behavior
 bash -n install.sh            # shell syntax
+shellcheck install.sh tests/*.sh
 ```
 All checks must pass (CI runs the same on push/PR). Please:
 1. Keep changes surgical and explain the *why* in the PR description.
 2. Update both `README.md` (Korean, default) and `README.en.md` (English) when behavior/docs change.
-3. Add/extend a `tests/validate.sh` check when you add a file the project relies on.
+3. Add or extend a contract test when behavior changes; use `tests/install.sh` for installer behavior.
 
 ## Commit messages
 Conventional, imperative, scoped (`feat:`, `fix:`, `docs:`, `refactor:`, `test:`).

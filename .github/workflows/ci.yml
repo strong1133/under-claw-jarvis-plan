@@ -1,0 +1,22 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check shell syntax
+        run: bash -n install.sh tests/validate.sh tests/install.sh
+      - name: Validate package contracts
+        run: bash tests/validate.sh
+      - name: Test isolated installs
+        run: bash tests/install.sh
+      - name: Run ShellCheck
+        run: shellcheck install.sh tests/*.sh

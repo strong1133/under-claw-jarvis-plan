@@ -23,7 +23,7 @@
 | **Codex** | `update_plan` | `$skill-name` | multi-agent/subagent 도구 | `skills/.../SKILL.md` | `~/.codex/skills/under-claw-jarvis-plan/references/` |
 | **Gemini CLI** | `GEMINI.md` 항목 또는 명시 체크리스트(C1-fallback) | TOML 커스텀 명령 또는 직접 도구 호출 | 병렬 도구 호출/세션 내 역할 분리(C3-fallback) | `skills/.../GEMINI.md` | `~/.gemini/skills/under-claw-jarvis-plan/references/` |
 | **Cursor** | 내장 todo/플랜 패널 또는 C1-fallback | 등록된 command/skill | 세션 내 역할 분리(C3-fallback) | `commands/`+`skills/`(plugin) | `<plugin-root>/skills/.../references/` |
-| **Copilot** | 동상 또는 C1-fallback | 등록된 command/skill | 세션 내 역할 분리(C3-fallback) | `commands/`+`skills/`(plugin) | `<plugin-root>/skills/.../references/` |
+| **Copilot** | 내장 todo/플랜 또는 C1-fallback | 등록된 command/skill | 세션 내 역할 분리(C3-fallback) | `commands/`+`skills/`(plugin) | `<plugin-root>/skills/.../references/` |
 | **generic LLM**(그 외 전부) | **C1-fallback** | **C2-fallback** | **C3-fallback** | 이 `SKILL.md`/`GEMINI.md` 중 가용한 것 | 로드된 `SKILL.md` 옆 `references/` |
 
 ## Fallback 규약 — 네이티브 도구가 없을 때(범용 보장의 핵심)

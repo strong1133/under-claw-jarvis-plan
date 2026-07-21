@@ -28,7 +28,9 @@
 curl -fsSL https://raw.githubusercontent.com/strong1133/under-claw-jarvis-plan/master/install.sh | bash
 ```
 under-claw-jarvis-plan + **의존(외부 참조) 스킬**(Karpathy · Superpowers · Understand-Anything · skill-creator)까지
-모두 `~/.claude`에 설치한다. 레포가 없으면 자동 임시 클론(부트스트랩), 기존 파일은 자동 백업(멱등·안전).
+모두 `~/.claude`에 설치한다. 레포가 없으면 자동 임시 클론(부트스트랩), 기존 파일은 호스트별로 자동 백업한다.
+외부 스킬은 재현성과 공급망 안전을 위해 검증된 commit SHA로 고정되며, 갱신은 `install.sh`의 pin을 명시적으로 변경해야 한다.
+단, 한 줄 설치의 최초 `master/install.sh` 다운로드와 이 프로젝트 자체 bootstrap은 최신 `master`를 따르므로 민감한 환경에서는 레포를 검토 후 로컬 설치한다.
 설치 후 아무 세션에서 `/under-claw-jarvis-plan`.
 
 - ⚠️ **Understand-Anything**은 pnpm 플러그인이라 설치 끝에 안내되는 **수동 1스텝**이 필요(선택 — 없어도 under-claw-jarvis-plan은 동작).
@@ -134,6 +136,8 @@ $under-claw-jarvis-plan-loop {요구사항}            # Codex
 ```bash
 /under-claw-jarvis-plan test    # 단계·스킬·model 점검 매트릭스 (읽기전용, 무변경)
 bash tests/validate.sh          # 구조·매니페스트·민감정보 자동 검증 (CI에서도 실행)
+bash tests/install.sh           # 격리 설치·백업·잘못된 옵션 동작 검증
+shellcheck install.sh tests/*.sh
 ```
 - `VERIFY-peer-collab.md`: (선택) 2-pane 동등 협업 검증 시나리오(6대 신호/채점표).
 

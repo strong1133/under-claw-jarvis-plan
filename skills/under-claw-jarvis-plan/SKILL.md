@@ -34,11 +34,11 @@ Gemini 진입점은 `skills/under-claw-jarvis-plan/GEMINI.md`를 유지한다.
 
 ## 공통 합의·검수 원칙
 
-- **전원 동의 원칙**: 단독 세션은 내부 council/subagent 합의, 2-pane은 Claude+Codex 합의, 3-pane extra는 Claude+Codex+Gemini 합의 없이는 이해, 계획, 구현, 검수 통과를 선언하지 않는다.
+- **전원 동의 원칙**: 단계 시작 시 실제로 응답·산출 가능한 `ACTIVE_PARTICIPANTS`를 확정하고, 그 전원의 합의 없이는 이해, 계획, 구현, 검수 통과를 선언하지 않는다.
 - **단계별 독립 합의 게이트**: 사고 단계는 facilitator가 스코프만 공유하고, 각 agent가 독립 산출물을 제출한 뒤 교차검토, 합성, 유효 ACK를 거쳐야 다음 단계로 간다. 단독 `[ACK]`는 게이트 승인으로 계산하지 않는다.
 - **이견 처리**: 한 agent라도 `[BLOCK]` 또는 근거 있는 반대를 내면 진행하지 않는다. `[DIFF]`/`[ASK]`로 쟁점을 좁힌 뒤 다시 합의한다.
-- **작업자/검수자 분리**: 목표와 결과물 검증, 검수, 리뷰는 작업한 agent가 아닌 다른 agent가 맡는다. 3-pane에서는 작업자를 제외한 두 agent가 가능하면 모두 검수한다.
-- **self-review는 보조 수단**: 작업자는 자체 점검을 해야 하지만, 자체 점검만으로 완료 처리하지 않는다.
+- **작업자/검수자 분리**: 독립 agent/context가 있으면 목표와 결과물 검증은 작업자와 분리한다. 없으면 결정적 실행 검증을 포함한 `DEGRADED_REVIEW`로 수행하고 독립 검수로 표현하지 않는다.
+- **self-review는 보조 수단**: 독립 검수 수단이 있는데 자체 점검만으로 완료 처리하지 않는다. solo fallback은 역할 패스 기록+결정적 실행 검증+`[BLOCK]` 없음+`DEGRADED_REVIEW` 공개를 대체 게이트로 사용한다.
 
 ## reference 경로
 
@@ -82,9 +82,9 @@ Gemini 진입점은 `skills/under-claw-jarvis-plan/GEMINI.md`를 유지한다.
 2. 단계 순서는 이해, 계획, 구현, 검수 순으로 진행한다. 앞으로 건너뛰지 않는다.
 3. brownfield는 최초요구, 현재구현, 교정요청의 3자 대조를 끝내기 전 구현하지 않는다.
 4. 되돌리기 어려운 변경, 배포, 외부 전송, 대량 삭제, push는 사용자 지시 또는 호스트 규칙이 허용할 때만 수행한다.
-5. 3-pane extra 또는 council 사고 단계는 **단계별 합의 게이트**를 통과해야 한다: 3개 독립 산출물(`drafts/<stage>_<agent>.md` 권장), 전원 `[DRAFT_READY]` 전파와 타 draft 미열람 규율, 합의/불일치/미해결가정 합성표, 3모델 유효 ACK, 진행 막는 `[BLOCK]` 0.
+5. council 사고 단계에서 참여자 2명 이상이면 `ACTIVE_PARTICIPANTS`별 독립 산출물, 전원 `[DRAFT_READY]`, 합성표, 전원 유효 ACK, `[BLOCK]` 0을 요구한다. solo는 `DEGRADED_REVIEW` 대체 게이트를 적용한다.
 6. 유효 ACK는 `[ACK]`와 함께 합성 결정 요약, 동의 근거, 잔여 리스크 유무, 사고 단계의 상대 draft 1줄 인용을 포함해야 한다. 미충족 ACK는 `[INVALID_ACK]`로 반려하고 게이트 승인으로 세지 않는다.
-7. facilitator는 단계마다 게이트 상태표(행=CLAUDE/CODEX/GEMINI, 열=독립산출/교차검토/유효ACK)를 유지한다. 한 칸이라도 비면 다음 Phase로 진행하지 않는다.
+7. 참여자 2명 이상이면 게이트 상태표(행=`ACTIVE_PARTICIPANTS`, 열=독립산출/교차검토/유효ACK)를 동적으로 유지하며 한 칸이라도 비면 진행하지 않는다. solo는 역할 패스 기록+결정적 실행 검증+`[BLOCK]` 없음+degraded 공개 상태표로 대체한다.
 8. 동일 쟁점이 3회 초과 왕복되면 차이를 요약하고 Karpathy 최소·단순안을 임시 채택해 verify로 정렬한다. 그래도 막히면 양안+권장안을 사용자에게 제시한다.
 9. 각 task는 구성 모듈 적용, 태그 로깅, Definition of Done 산출물 확인을 모두 만족해야 완료 처리한다.
 
@@ -126,12 +126,12 @@ Gemini 진입점은 `skills/under-claw-jarvis-plan/GEMINI.md`를 유지한다.
 | 단계 | 완료 산출물 |
 |---|---|
 | 이해 | 정렬된 요구와 성공기준 요약, brownfield면 3자 대조표, `<understand-anything 호출>` 로깅 |
-| 계획 | 설계 doc 저장 또는 계획 산출물 명시, 번호 매긴 task 리스트, `<superpowers:plan 호출>` 로깅 |
+| 계획 | 설계 doc 파일 저장(경로 명시), 번호 매긴 task 리스트, `<superpowers:plan 호출>` 로깅 |
 | 구현 | task별 스펙 리뷰와 품질 리뷰 통과 기록, `<superpowers:implement 호출>` 로깅 |
 | 검수 | 빌드, 테스트, lint, 수동 확인 등 실행 검증 결과와 마감 체크리스트, `<superpowers:review 호출>` 로깅 |
 
 산출물이 없으면 task를 닫지 않는다.
-3-pane/council 단계의 DoD에는 단계별 합의 게이트 상태표(독립산출/교차검토/유효ACK 전 칸 충족)와 진행 막는 `[BLOCK]` 없음이 포함된다.
+council 단계의 DoD에는 `ACTIVE_PARTICIPANTS` 기반 합의 게이트 상태표(독립산출/교차검토/유효ACK 전 칸 충족)와 진행 막는 `[BLOCK]` 없음이 포함된다. 독립 검수 컨텍스트가 없는 solo fallback은 실행 검증을 통과한 경우 `DEGRADED_REVIEW`로 완료할 수 있지만 독립 검수로 표현하지 않고 최종 보고에 공개한다.
 
 ## Phase 2 — 이해
 
