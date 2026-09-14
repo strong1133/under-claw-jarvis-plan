@@ -1,0 +1,19 @@
+# Codex 프로젝트 스코프 설정 (팀 공유 · 커밋 대상)
+#
+# - Codex 는 저장소 루트부터 CWD 까지 걸어가며 발견되는 모든 .codex/config.toml 을 로드한다.
+# - 이 파일은 **프로젝트가 trusted 일 때만** 로드된다. 신뢰되지 않은 프로젝트에서는 .codex/ 계층이 전부 무시된다.
+#   (새 워크트리/클론에서 처음 실행할 때 신뢰 여부를 확인할 것)
+# - 상대 경로는 이 .codex/ 폴더 기준으로 해석된다.
+# - 개인 설정은 여기 쓰지 말고 ~/.codex/config.toml 에 둔다.
+
+# AGENTS.md 를 얼마나 읽을지. 루트 AGENTS.md 는 8KiB 예산이므로 기본값으로 충분하다.
+# project_doc_max_bytes = 32768
+
+# 이 프로젝트에서만 쓰는 MCP 서버가 있으면 선언한다.
+# [mcp_servers.{{서버이름}}]
+# command = "{{실행 명령}}"
+# args = ["{{인자}}"]
+# startup_timeout_sec = 60
+
+# 훅은 이 파일의 [hooks] 인라인 테이블로도 선언할 수 있지만,
+# 이 템플릿은 가독성을 위해 .codex/hooks.json 으로 분리했다.

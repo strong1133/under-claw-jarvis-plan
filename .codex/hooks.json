@@ -1,0 +1,22 @@
+{
+  "_comment": [
+    "Codex 프로젝트 스코프 훅. 프로젝트가 trusted 일 때만 로드된다.",
+    "이벤트 이름은 Claude Code 와 겹치지만(PreToolUse/PostToolUse/SessionStart/UserPromptSubmit 등),",
+    "stdin 페이로드 필드명이 동일하다는 보장은 없다 — 스크립트를 공유하기 전에 실제 실행으로 필드를 확인할 것.",
+    "확인 방법: 훅 command 를 `cat >> /tmp/codex-hook-payload.json` 으로 임시 교체하고 한 턴 돌린 뒤 파일을 읽는다.",
+    "관리자가 requirements.toml 에 allow_managed_hooks_only=true 를 걸면 이 파일은 무시된다."
+  ],
+  "hooks": {
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "sh ./tools/codex-verify-instructions.sh",
+            "timeout": 120
+          }
+        ]
+      }
+    ]
+  }
+}

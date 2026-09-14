@@ -1,0 +1,15 @@
+# 지침·권위 docs 에 다시 나타나면 안 되는 문자열 (한 줄에 하나).
+# 빈 줄과 # 주석은 무시된다. 대소문자를 구분한다.
+#
+# 용도: 리팩터링으로 사라진 경로·클래스명, 한때 맞았지만 이제 틀린 수치가
+#       문서에 재유입되는 것을 차단한다. 사람이 리뷰로 잡기 가장 어려운 종류다.
+#
+# 넣는 시점: 문서를 고치면서 "이 표현은 이제 틀렸다"를 발견했을 때 그 자리에서 추가한다.
+# 검사 대상: AGENTS.md · 하위 AGENTS.md · .claude/rules/*.md · docs/architecture · docs/conventions
+#
+# 예시 (실제 프로젝트에서 쓰던 것들):
+# ArchUnit 21 룰
+# 583개 테스트
+# api/{도메인}
+# OwnershipContextHolder
+# com.acme.legacy.

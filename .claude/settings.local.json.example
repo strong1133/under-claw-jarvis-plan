@@ -1,0 +1,12 @@
+{
+  "_comment": "개인 설정 오버라이드 템플릿 — .claude/settings.local.json 으로 복사. 커밋 금지(.gitignore). 팀 공유 설정은 settings.json 에.",
+  "permissions": {
+    "allow": [
+      "Bash({{내가 자주 쓰는 명령}} *)"
+    ]
+  },
+  "env": {
+    "_comment": "예: 로컬 빌드에 필요한 런타임 경로",
+    "JAVA_HOME": "{{/path/to/jdk}}"
+  }
+}

@@ -1,0 +1,15 @@
+
+
+# local IDE/tool config (orca, ade)
+orca.yaml
+.ade
+ade.yaml
+ade.yml
+ade.json
+
+# === AI 에이전트 개인 파일 (팀 공유 금지) ===
+CLAUDE.local.md
+**/.claude/settings.local.json
+.claude/agent-memory/
+.codex/local/
+.ai-template-backup/

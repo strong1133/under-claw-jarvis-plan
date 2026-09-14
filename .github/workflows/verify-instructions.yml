@@ -1,0 +1,32 @@
+name: verify-instructions
+
+# 지침 구조는 깨져도 조용하다 — 훅은 로컬에서만 돌고, 훅을 안 쓰는 사람도 있다.
+# CI 에서 한 번 더 잡는다.
+
+on:
+  pull_request:
+    paths:
+      - 'AGENTS.md'
+      - '**/AGENTS.md'
+      - 'CLAUDE.md'
+      - '**/CLAUDE.md'
+      - '.claude/**'
+      - '.codex/**'
+      - '.agents/**'
+      - 'docs/**'
+      - '.gitignore'
+      - 'tools/**'
+  push:
+    branches: [master]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 지침 구조 검증
+        run: ./tools/verify-instructions.sh
+
+      - name: Claude ↔ Codex 스킬 동기화 확인
+        run: ./tools/sync-skills.sh --check
