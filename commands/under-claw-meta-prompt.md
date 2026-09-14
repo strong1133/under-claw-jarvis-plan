@@ -6,7 +6,12 @@ license: MIT
 
 # under-claw-meta-prompt — 명시적 호출 전용
 
-이 명령이 직접 호출된 경우에만 `skills/under-claw-meta-prompt/SKILL.md`를 읽고 그대로 수행한다.
+이 명령이 직접 호출된 경우에만 아래 설치 위치의 `SKILL.md`를 읽고 그대로 수행한다.
+
+- 플러그인 설치: `${CLAUDE_PLUGIN_ROOT}/skills/under-claw-meta-prompt/SKILL.md`
+- `install.sh` 설치: `~/.claude/skills/under-claw-meta-prompt/SKILL.md`
+
+호스트가 제공한 플러그인 경로를 우선하고, 없으면 사용자 설치 경로를 확인한다. 참조 문서와 스크립트의 상대 경로는 읽은 `SKILL.md`의 디렉터리를 기준으로 해석한다. 해당 파일을 찾지 못하면 설치 경로 오류를 알리고 중단한다.
 일반 질의나 다른 명령에서는 자동 활성화하지 않는다.
 
 입력 형식:

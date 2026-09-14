@@ -1,6 +1,6 @@
 {
   "name": "under-claw-jarvis-plan",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Project-agnostic multi-agent orchestrator. Drives understand -> plan -> implement -> review across files and projects, composing Karpathy / Understand-Anything / Superpowers methodologies. Runs on the current session's subagents by default (optional cross-model peer).",
   "author": { "name": "strong1133", "url": "https://github.com/strong1133" },
   "homepage": "https://github.com/strong1133/under-claw-jarvis-plan",
