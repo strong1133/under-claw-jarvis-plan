@@ -133,8 +133,10 @@ def judge(contract_path, report_path, root, target=None):
         result = by_id.get(cid)
         if result is None:
             fail('missing result: ' + cid)
-        elif criterion['required'] and (result['status'] != 'pass' or not result['evidence']):
+        elif criterion['required'] and result['status'] != 'pass':
             fail('required criterion not evidenced: ' + cid, result['stage'])
+        elif criterion['required'] and not result['evidence']:
+            fail('required criterion missing evidence: ' + cid)
     hard_pass = not issues
     score = None
     if 'scores' in report:
@@ -143,7 +145,10 @@ def judge(contract_path, report_path, root, target=None):
     if target is not None:
         target = number(target, 10)
         if score is None or score < target:
-            fail('quality target not met', 'implement')
+            if hard_pass:
+                fail('quality target not met', 'implement')
+            else:
+                issues.append('quality target not met')
     return {'passed': not issues, 'hard_pass': hard_pass, 'score': float(score) if score is not None else None,
             'review_mode': report['review_mode'],
             'resume_stage': min(stages, key=STAGES.index) if stages else None, 'issues': issues}

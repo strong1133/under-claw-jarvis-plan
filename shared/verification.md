@@ -47,8 +47,9 @@ python3 shared/evidence.py judge contract.json report.json --root ./run --target
 
 종료 코드: 0=PASS, 1=기준/해시/증거/점수 미달, 2=잘못된 입력.
 출력은 JSON이며 `passed`, `hard_pass`, `score`, `resume_stage`, `issues`를 포함한다.
-기준별 실패는 가장 앞선 관련 단계로 복귀한다. 해시나 보고 구조 문제는 먼저 review로
-돌아가 재검증한다. 명세의 질문 미해결은 understand로 복귀한다.
+기준별 실패는 가장 앞선 관련 단계로 복귀한다. 산출물 해시·증거 누락·보고 구조 문제는
+먼저 review로 돌아가 재검증한다. hard_pass 실패 시 품질 점수 미달만으로 추가 구현을
+지시하지 않는다. 명세 해시 불일치와 질문 미해결은 understand로 복귀한다.
 
 이 스크립트는 **보고의 일관성·해시·게이트만 검사**한다. 테스트를 대신 실행하거나
 LLM 판정의 진실성·의미 보존·독립성 자체를 증명하지 않는다. 실행 로그와 실물 검수는

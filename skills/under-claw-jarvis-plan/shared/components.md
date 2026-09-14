@@ -5,7 +5,6 @@
 
 | 구성요소 | 적용 스킬 | 모듈 | 태그 |
 |---|---|---|---|
-| im-not-ai | under-claw-meta-prompt | `components/humanize.md` | `<component:humanize 적용>` |
 | Ouroboros | under-claw-jarvis-plan, under-claw-jarvis-plan-loop | `components/ouroboros.md` | `<component:ouroboros 적용>` |
 
 메타프롬프팅은 프롬프트 표현·가독성을 개선하고, plan과 loop는 명세·단계별 검증·

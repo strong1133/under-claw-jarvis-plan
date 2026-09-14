@@ -21,12 +21,26 @@ def main():
     source = ROOT / 'shared'
     common = snapshot(source)
     manifest = json.loads((source / 'components.json').read_text())
+    for component in manifest['components']:
+        if not component['skills'] or any(skill not in SKILLS for skill in component['skills']):
+            print('Invalid component skill scope: ' + component['id'], file=sys.stderr)
+            return 1
+        if Path(component['adapter']) not in common:
+            print('Missing component source: ' + component['adapter'], file=sys.stderr)
+            return 1
     different = []
     for name in SKILLS:
         components = [c for c in manifest['components'] if name in c['skills']]
         adapters = {Path(c['adapter']) for c in components}
         expected = {rel: content for rel, content in common.items()
                     if rel.parts[0] != 'components' or rel in adapters}
+        # The installed guide must only name adapter paths actually in this bundle.
+        excluded = [c['adapter'] for c in manifest['components'] if c not in components]
+        guide = common[Path('components.md')].decode()
+        expected[Path('components.md')] = ''.join(
+            line for line in guide.splitlines(keepends=True)
+            if not (line.startswith('|') and any(adapter in line for adapter in excluded))
+        ).encode()
         expected[Path('components.json')] = (json.dumps(
             dict(manifest, components=components), indent=2) + '\n').encode()
         target = ROOT / 'skills' / name / 'shared'

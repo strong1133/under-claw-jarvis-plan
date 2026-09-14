@@ -1,5 +1,6 @@
 import json
 import os
+import re
 from pathlib import Path
 import shutil
 import subprocess
@@ -91,6 +92,18 @@ class ComponentInstallTests(unittest.TestCase):
             self.assertEqual({p.name for p in components.iterdir()}, expected)
         self.assertTrue(list(self.home.glob('.under-claw-jarvis-plan-backup-*/codex/skills/*/shared/components/design.md')))
 
+    def test_missing_adapter_source_fails_before_repackaging(self):
+        tools = self.repo/'tools'
+        tools.mkdir()
+        shutil.copy2(ROOT/'tools/sync-shared.py', tools/'sync-shared.py')
+        (self.repo/'shared/components/humanize.md').unlink()
+        before = (self.repo/'skills/under-claw-meta-prompt/shared/components.json').read_bytes()
+        for options in [[], ['--check']]:
+            proc = subprocess.run(['python3', str(tools/'sync-shared.py'), *options], capture_output=True, text=True)
+            self.assertNotEqual(proc.returncode, 0)
+            self.assertIn('Missing component source', proc.stderr)
+        self.assertEqual((self.repo/'skills/under-claw-meta-prompt/shared/components.json').read_bytes(), before)
+
     def test_default_contains_adapters_without_source_download(self):
         proc = self.install('--codex-only')
         self.assertEqual(proc.returncode, 0, proc.stderr)
@@ -102,6 +115,8 @@ class ComponentInstallTests(unittest.TestCase):
             self.assertEqual([c['id'] for c in installed_manifest['components']], [c['id'] for c in assigned])
             for c in self.manifest['components']:
                 self.assertEqual((installed/c['adapter']).is_file(), skill in c['skills'])
+            for path in re.findall(r'`(components/[a-z-]+\.md)`', (installed/'components.md').read_text()):
+                self.assertTrue((installed/path).is_file(), path)
             for excluded in ['design.md', 'workspace.md']:
                 self.assertFalse((installed/'components'/excluded).exists())
             proc = subprocess.run(['python3', str(installed/'evidence.py'), '--help'], capture_output=True)

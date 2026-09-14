@@ -56,6 +56,18 @@ class EvidenceTests(unittest.TestCase):
                 self.assertFalse(result['passed'])
                 self.assertEqual(result['resume_stage'], stage)
 
+    def test_missing_log_with_low_score_rechecks_evidence_before_rework(self):
+        (self.root / 'check.txt').unlink()
+        self.report['scores']['D4'] = 0.1
+        result = self.judge()
+        self.assertFalse(result['passed'])
+        self.assertEqual(result['resume_stage'], 'review')
+
+    def test_missing_evidence_reference_routes_to_review(self):
+        self.report['results'][0]['evidence'] = []
+        self.report['scores']['D4'] = 0.1
+        self.assertEqual(self.judge()['resume_stage'], 'review')
+
     def test_missing_evidence_rejected_even_at_ten(self):
         self.report['scores']['D4'] = 1
         self.report['results'][0]['evidence'] = []
