@@ -3,7 +3,7 @@
 입력이 `test`면 실제 루프·설치·외부 쓰기를 수행하지 않는다.
 
 - 베이스 진입점·references와 loop의 00/10/20/30/40 모듈을 찾는다.
-- 번들의 shared/contract.md, verification.md, evidence.py, components.json과 네 어댑터를 확인한다.
+- 번들의 shared/contract.md, verification.md, evidence.py, components.json과 Ouroboros 어댑터를 확인한다.
 - TARGET 기본 9.5, MAX_ROUNDS 기본 5, 선택 MAX_SECONDS, plateau/BLOCK 의미를 설명한다.
 - 필수 기준 실패 + 10점은 FAIL, hard_pass + 9.5는 PASS, 9.49는 반올림해 통과시키지 않음을 확인한다.
 - 명세 해시 변경·증거 누락·산출물 변경은 재검증 대상임을 확인한다.

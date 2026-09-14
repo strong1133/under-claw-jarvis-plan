@@ -51,6 +51,7 @@ class ComponentInstallTests(unittest.TestCase):
         self.assertEqual(proc.returncode, 0, proc.stdout+proc.stderr)
         cache = self.home/'.under-claw/components'
         self.assertFalse((self.home/'UNEXPECTED_INSTALL').exists())
+        self.assertEqual({p.name for p in cache.iterdir()}, {'humanize', 'ouroboros'})
         self.assertFalse((self.home/'.claude').exists())
         for c in self.manifest['components']:
             actual = subprocess.check_output([self.git, '-C', str(cache/c['id']), 'rev-parse', 'HEAD'], text=True).strip()
@@ -77,14 +78,32 @@ class ComponentInstallTests(unittest.TestCase):
         self.assertNotEqual(proc.returncode, 0)
         self.assertEqual((cache/'SKILL.md').read_bytes(), previous)
 
+    def test_upgrade_removes_retired_and_unassigned_adapters(self):
+        self.assertEqual(self.install('--codex-only').returncode, 0)
+        for skill in ('under-claw-jarvis-plan', 'under-claw-jarvis-plan-loop', 'under-claw-meta-prompt'):
+            components = self.home/'codex/skills'/skill/'shared/components'
+            for name in ['design.md', 'workspace.md', 'humanize.md', 'ouroboros.md']:
+                (components/name).write_text('old adapter')
+        self.assertEqual(self.install('--codex-only').returncode, 0)
+        for skill in ('under-claw-jarvis-plan', 'under-claw-jarvis-plan-loop', 'under-claw-meta-prompt'):
+            components = self.home/'codex/skills'/skill/'shared/components'
+            expected = {'humanize.md'} if skill == 'under-claw-meta-prompt' else {'ouroboros.md'}
+            self.assertEqual({p.name for p in components.iterdir()}, expected)
+        self.assertTrue(list(self.home.glob('.under-claw-jarvis-plan-backup-*/codex/skills/*/shared/components/design.md')))
+
     def test_default_contains_adapters_without_source_download(self):
         proc = self.install('--codex-only')
         self.assertEqual(proc.returncode, 0, proc.stderr)
         self.assertFalse((self.home/'.under-claw').exists())
         for skill in ('under-claw-jarvis-plan', 'under-claw-jarvis-plan-loop', 'under-claw-meta-prompt'):
             installed = self.home/'codex/skills'/skill/'shared'
+            assigned = [c for c in self.manifest['components'] if skill in c['skills']]
+            installed_manifest = json.loads((installed/'components.json').read_text())
+            self.assertEqual([c['id'] for c in installed_manifest['components']], [c['id'] for c in assigned])
             for c in self.manifest['components']:
-                self.assertTrue((installed/c['adapter']).is_file())
+                self.assertEqual((installed/c['adapter']).is_file(), skill in c['skills'])
+            for excluded in ['design.md', 'workspace.md']:
+                self.assertFalse((installed/'components'/excluded).exists())
             proc = subprocess.run(['python3', str(installed/'evidence.py'), '--help'], capture_output=True)
             self.assertEqual(proc.returncode, 0)
 

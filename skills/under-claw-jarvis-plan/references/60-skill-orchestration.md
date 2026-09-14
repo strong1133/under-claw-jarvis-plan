@@ -75,4 +75,6 @@ under-claw-jarvis-plan은 **고차 스킬**이다 — 직접 다 하지 말고, 
 
 ## 내장 외부 구성 모듈
 
-Ouroboros·im-not-ai·OpenDesign·Google Workspace 연결은 번들의 `shared/components.md`에서 선택한다. 위 환경 스킬과 달리 이 네 어댑터는 구성 모듈로 로깅·자가진단 대상이다. 관련 작업에서만 읽고 외부 런타임은 자동 설치/호출하지 않는다.
+Ouroboros는 `shared/components/ouroboros.md`를 통해 명세·단계별 검증·재수행에 적용한다.
+위 환경 스킬과 달리 이 어댑터는 구성 모듈로 로깅·자가진단 대상이다.
+원본 실행 엔진은 중첩 호출하지 않는다. im-not-ai는 meta-prompt 전용이다.

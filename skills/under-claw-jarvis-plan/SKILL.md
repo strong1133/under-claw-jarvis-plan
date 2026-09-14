@@ -26,8 +26,8 @@ Gemini 진입점은 `skills/under-claw-jarvis-plan/GEMINI.md`를 유지한다.
 
 복합 작업의 Intake에서 스킬 번들의 `shared/contract.md`를 읽고 명세를 확정한다.
 검수 전에 `shared/verification.md`를 읽고 필수 기준·실행 증거·중대 결함을 검사한다.
-외부 구성 모듈은 `shared/components.md`에서 작업 유형에 맞는 것만 선택해 읽고
-`<component:이름 적용>`을 남긴다. 내장 방법론 적용과 원본 도구 실행을 구분한다.
+외부 구성은 `shared/components/ouroboros.md`를 읽고 명세·검증·재수행에 적용하며
+`<component:ouroboros 적용>`을 남긴다. 내장 방법론 적용과 원본 도구 실행을 구분한다.
 `shared/`는 이 스킬의 `references/`와 같은 부모 디렉터리 안에 있다.
 
 loop가 명세 해시·이전 증거·미해결 기준과 `resume_stage`를 전달하면 단계 회귀로
@@ -89,9 +89,6 @@ loop가 명세 해시·이전 증거·미해결 기준과 `resume_stage`를 전�
 | `70-planning.md` | 구체 스킬 매핑 | `<planning 적용>` |
 | `90-test.md` | 자가진단 | `<test 실행>` |
 | `shared/components/ouroboros.md` | 명세·검증 | `<component:ouroboros 적용>` |
-| `shared/components/humanize.md` | 한국어 윤문 | `<component:humanize 적용>` |
-| `shared/components/design.md` | 디자인·시각 검수 | `<component:design 적용>` |
-| `shared/components/workspace.md` | 구글 업무 | `<component:workspace 적용>` |
 
 ## 모드 분기
 

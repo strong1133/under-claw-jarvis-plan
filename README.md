@@ -55,12 +55,15 @@ Karpathy Guidelines, Superpowers, Understand-Anything, skill-creator 같은 외�
 
 ### 새 외부 구성요소
 
-Ouroboros(명세·단계별 검증), im-not-ai(한국어 의미 보존 윤문),
-OpenDesign(디자인 규약·시각 검수), Google Workspace CLI(구글 업무 연동)의
-내장 어댑터가 기본 번들에 포함됩니다. 작업에 해당하는 모듈만 읽습니다.
+외부 구성은 스킬 역할에 따라 고정됩니다.
+
+- **im-not-ai → meta-prompt:** 한국어 프롬프트 표현 개선과 요구·제약·출력 형식 보존
+- **Ouroboros → jarvis-plan·loop:** 명세·단계별 검증·결함별 재수행
+
+각 스킬에는 담당 어댑터만 포함됩니다.
 
 ```bash
-./install.sh --with-components                  # 기본 스킬 설치 + 네 원본 소스 캐시
+./install.sh --with-components                  # 기본 스킬 설치 + 두 원본 소스 캐시
 ./install.sh --codex-only --with-components     # Codex 설치와 함께 사용 가능
 ```
 

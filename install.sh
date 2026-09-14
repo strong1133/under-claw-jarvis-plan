@@ -9,7 +9,7 @@
 #   ./install.sh                  기본 = Claude + Codex에 세 스킬 설치/업데이트
 #   ./install.sh --skill-only     Claude에만 설치(하위호환)
 #   ./install.sh --claude-only    Claude에만 설치
-#   ./install.sh --with-components 네 선택 구성요소 원본 소스 캐시(도구 설치/인증 없음)
+#   ./install.sh --with-components 두 역할별 구성요소 원본 소스 캐시(도구 설치/인증 없음)
 #   ./install.sh --with-externals 기본 설치 + Claude 외부 참조 스킬(opt-in)
 #   ./install.sh --externals-only Claude 의존(외부 참조) 스킬만
 #   ./install.sh --codex          기본 설치와 동일(하위호환)

@@ -43,5 +43,5 @@ Codex는 `./install.sh --codex-only`로 `${CODEX_HOME:-~/.codex}/skills/under-cl
 ## v0.2 공통 구성
 
 번들의 `shared/contract.md`와 `shared/verification.md`가 명세와 검증 결과 형식을 정의한다.
-`shared/components.md`는 Ouroboros·im-not-ai·OpenDesign·Google Workspace 선택 어댑터를 소유한다.
+`shared/components.md`는 plan 전용 Ouroboros 어댑터를 소유한다.
 외부 원본 소스 캐시는 선택 사항이며 실제 CLI/MCP 연결과 구분한다.

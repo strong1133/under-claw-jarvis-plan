@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Package the common contract into each independently installable skill."""
 import argparse
+import json
 from pathlib import Path
-import shutil
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -19,9 +19,16 @@ def main():
     parser.add_argument('--check', action='store_true')
     args = parser.parse_args()
     source = ROOT / 'shared'
-    expected = snapshot(source)
+    common = snapshot(source)
+    manifest = json.loads((source / 'components.json').read_text())
     different = []
     for name in SKILLS:
+        components = [c for c in manifest['components'] if name in c['skills']]
+        adapters = {Path(c['adapter']) for c in components}
+        expected = {rel: content for rel, content in common.items()
+                    if rel.parts[0] != 'components' or rel in adapters}
+        expected[Path('components.json')] = (json.dumps(
+            dict(manifest, components=components), indent=2) + '\n').encode()
         target = ROOT / 'skills' / name / 'shared'
         if snapshot(target) == expected:
             continue
@@ -33,7 +40,7 @@ def main():
                 (target / rel).unlink()
             for rel in expected:
                 (target / rel).parent.mkdir(parents=True, exist_ok=True)
-                shutil.copy2(source / rel, target / rel)
+                (target / rel).write_bytes(expected[rel])
     if different:
         print('Shared bundle drift: ' + ', '.join(different))
         return 1

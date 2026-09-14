@@ -69,6 +69,15 @@ description: 명시적 호출 전용 메타 프롬프트 생성기. 사용자가
 7. [assets/prompt-template.md](assets/prompt-template.md)의 제목, 순서, 섹션 의미를 정확히 유지한다. 결과의 형태와 톤은 [references/output-spec.md](references/output-spec.md)를 따른다.
 8. [references/quality-rubric.md](references/quality-rubric.md)로 누락 방지용 내부 점검을 수행한다. 85점 미만이면 가장 큰 결함만 고쳐 한 번 재작성하고 종료한다. 이 점수는 품질 보증이나 실제 평가를 대신하지 않는다. 점수와 내부 비평은 출력하지 않는다.
 
+## 메타프롬프트 표현 점검
+
+프롬프트 또는 명세 초안이 완성되면 `shared/components/humanize.md`를 읽고
+한국어 표현을 점검한다. im-not-ai의 문제 구간 수정·의미 보존 원리를 적용하되
+요구 강도·조건·변수·출력 형식을 유지한다. 일반 모드는 고정 9개 섹션, `--spec`는
+JSON 스키마를 그대로 유지한다. 의미가 달라진 수정은 되돌린다.
+점검 후 위 품질 루브릭 또는 명세 스키마를 다시 확인하고 기존 방식으로 전달한다.
+점검 태그·내부 비평을 최종 프롬프트나 JSON에 넣지 않는다.
+
 ## 클립보드
 
 기본 모드에서는 최종 프롬프트 문자열만 `scripts/copy-to-clipboard.sh`의 표준입력으로 전달한다. 스크립트가 성공하면 동일한 문자열을 응답한다. 지원 명령이 없어 실패하면 프롬프트는 정상 응답하고 복사 실패를 짧게 알린다.

@@ -19,8 +19,8 @@ description: "명시적 호출 전용. 사용자가 `/under-claw-jarvis-plan`을
 
 복합 작업의 Intake에서 스킬 번들의 `shared/contract.md`를 읽고 명세를 확정한다.
 검수 전에 `shared/verification.md`를 읽고 필수 기준·실행 증거·중대 결함을 검사한다.
-외부 구성 모듈은 `shared/components.md`에서 작업 유형에 맞는 것만 선택해 읽고
-`<component:이름 적용>`을 남긴다. 내장 방법론 적용과 원본 도구 실행을 구분한다.
+외부 구성은 `shared/components/ouroboros.md`를 읽고 명세·검증·재수행에 적용하며
+`<component:ouroboros 적용>`을 남긴다. 내장 방법론 적용과 원본 도구 실행을 구분한다.
 `shared/`는 이 스킬의 `references/`와 같은 부모 디렉터리 안에 있다.
 
 loop가 명세 해시·이전 증거·미해결 기준과 `resume_stage`를 전달하면 단계 회귀로
@@ -87,9 +87,6 @@ loop가 명세 해시·이전 증거·미해결 기준과 `resume_stage`를 전�
 | (자체) skill-planning | `70-planning` | `<planning 적용>` |
 | (자체) test | `90-test` | `<test 실행>` |
 | Ouroboros | `shared/components/ouroboros.md` | `<component:ouroboros 적용>` |
-| im-not-ai | `shared/components/humanize.md` | `<component:humanize 적용>` |
-| OpenDesign | `shared/components/design.md` | `<component:design 적용>` |
-| Google Workspace CLI | `shared/components/workspace.md` | `<component:workspace 적용>` |
 
 ## 스킬 호출 로깅 (필수)
 위 **구성 스킬**을 적용/호출할 때마다 **호출 직전 한 줄로 반드시 로깅**한다.

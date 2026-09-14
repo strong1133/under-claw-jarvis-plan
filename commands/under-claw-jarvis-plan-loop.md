@@ -36,6 +36,7 @@ Claude 명령 설치에서도 `shared/`는 설치된 loop 스킬 폴더 안에 �
 
 `shared/evidence.py judge contract.json report.json --root RUN_DIR --target TARGET`로
 기록의 일관성과 게이트를 검사한다. 실제 검사 실행과 의미 검수는 별도 책임이다.
+`shared/components/ouroboros.md`를 읽고 `<component:ouroboros 적용>`을 기록한다.
 원본 Ouroboros 런타임을 내부에서 중첩 실행하지 않는다.
 
 ## 호스트와 검수 분리

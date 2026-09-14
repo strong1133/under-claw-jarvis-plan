@@ -94,4 +94,4 @@
 
 ## 공통 번들 점검
 
-`shared/contract.md`, `shared/verification.md`, `shared/evidence.py`, `shared/components.json`과 manifest가 가리키는 네 어댑터의 존재를 확인한다. 명세 생성·점수만 높은 실패·결함별 재수행·원본 미설치 fallback을 설명한다. 이 점검에서는 설치·외부 쓰기·실제 작업을 수행하지 않는다.
+`shared/contract.md`, `shared/verification.md`, `shared/evidence.py`, `shared/components.json`과 manifest가 가리키는 Ouroboros 어댑터의 존재를 확인한다. 명세 생성·점수만 높은 실패·결함별 재수행·원본 미설치 fallback을 설명한다. 이 점검에서는 설치·외부 쓰기·실제 작업을 수행하지 않는다.

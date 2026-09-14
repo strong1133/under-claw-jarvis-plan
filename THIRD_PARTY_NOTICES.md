@@ -55,9 +55,7 @@ under-claw 내부 references는 자체 흐름에 맞춘 발췌·적응본으로,
 | 원본 | 라이선스 | 적용 |
 |---|---|---|
 | https://github.com/Q00/ouroboros | MIT | 명세·단계별 검증·재개 원리 |
-| https://github.com/epoko77-ai/im-not-ai | MIT | 한국어 문제 구간 윤문·의미 보존 |
-| https://github.com/nexu-io/open-design | Apache-2.0 | 디자인 규약·실제 렌더링 검수 |
-| https://github.com/googleworkspace/cli | Apache-2.0 | 서비스별 연결·변경 후 재조회 |
+| https://github.com/epoko77-ai/im-not-ai | MIT | 메타프롬프팅의 한국어 표현 개선·요구 보존 |
 
 정확한 revision은 [shared/components.json](shared/components.json)이 소유한다.
 공통 명세 스키마와 evidence.py는 이 저장소에서 자체 작성했다.

@@ -165,16 +165,16 @@ and the quality target; missing required results, stale hashes, or blockers cann
 Later rounds resume at understand, plan, implement, or review according to the defect and valid prior evidence.
 Optional `--max-seconds` bounds elapsed loop time at stage boundaries.
 
-Bundled adapters selectively apply ideas from Ouroboros (contracts and staged evaluation),
-im-not-ai (meaning-preserving Korean editing), OpenDesign (design systems and rendered review),
-and Google Workspace CLI (service operations and read-back verification).
+Components are scoped by skill: im-not-ai improves Korean wording in meta-prompt while preserving
+requirements, constraints, variables and output structure. Ouroboros contributes contracts, staged
+verification and targeted retries to jarvis-plan and loop. Each bundle contains only its assigned adapter.
 
 ```bash
 ./install.sh --with-components
 ./install.sh --codex-only --with-components
 ```
 
-These options cache the four pinned upstream repositories under `~/.under-claw/components/`.
+These options cache the two pinned upstream repositories under `~/.under-claw/components/`.
 They do not register upstream skills, execute upstream installers, install apps/CLIs, configure MCP,
 or authenticate accounts. Use available host tools or explicitly set up the needed integration.
 Ouroboros is not nested as a second execution engine. An existing task system remains the execution

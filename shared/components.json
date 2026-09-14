@@ -7,15 +7,10 @@
       "sha": "9747f036cdc28a1a8aea4dc71fef1f7846eb96f7",
       "license": "MIT",
       "adapter": "components/humanize.md",
-      "mode": "source-cache"
-    },
-    {
-      "id": "design",
-      "url": "https://github.com/nexu-io/open-design",
-      "sha": "7abe49c85814c72d04534ff8f76a795c1c187ce0",
-      "license": "Apache-2.0",
-      "adapter": "components/design.md",
-      "mode": "source-cache"
+      "mode": "source-cache",
+      "skills": [
+        "under-claw-meta-prompt"
+      ]
     },
     {
       "id": "ouroboros",
@@ -23,15 +18,11 @@
       "sha": "97098488bd003851e629584fcd52038bbbc7211e",
       "license": "MIT",
       "adapter": "components/ouroboros.md",
-      "mode": "source-cache"
-    },
-    {
-      "id": "workspace",
-      "url": "https://github.com/googleworkspace/cli",
-      "sha": "a3768d0e82ad83cca2da97724e46bea4ff0e6dbd",
-      "license": "Apache-2.0",
-      "adapter": "components/workspace.md",
-      "mode": "source-cache"
+      "mode": "source-cache",
+      "skills": [
+        "under-claw-jarvis-plan",
+        "under-claw-jarvis-plan-loop"
+      ]
     }
   ]
 }
