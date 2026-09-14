@@ -50,3 +50,7 @@
   3. 요구사항 범위를 넘어선 오버엔지니어링/범위 이탈 변경이 없는지 여부
   4. 남은 잔여 리스크 분석 요약
 - **최종 유효 ACK 게이트**: 참여자 2명 이상이면 `ACTIVE_PARTICIPANTS` 전원이 검수 드래프트를 올리고 교차 대조 결과에 최종 유효 ACK를 승인할 때만 PASS 처리한다. solo는 역할 패스 기록+결정적 실행 검증+`[BLOCK]` 없음+`DEGRADED_REVIEW` 공개를 충족할 때만 fallback PASS 처리한다.
+
+## 증거 게이트
+
+번들의 `shared/verification.md`로 기준별 실행 증거와 최종 산출물 해시를 대조한다. 필수 기준 fail/unknown, 증거 누락, 중대 결함은 점수와 관계없이 미완료다. 보고는 `shared/evidence.py judge`로 검사하며 이 스크립트가 실제 검수를 대신한다고 표현하지 않는다.

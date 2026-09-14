@@ -12,7 +12,7 @@ This repository provides three independently invoked skills for Claude Code and 
 | `under-claw-jarvis-plan-loop` | Repeat implementation and independent review until the target is met | `/under-claw-jarvis-plan-loop` / `$under-claw-jarvis-plan-loop` |
 | `under-claw-meta-prompt` | Generate or refine a consistent executable prompt | `/under-claw-meta-prompt` / `$under-claw-meta-prompt` |
 
-The three skills are independent and activate only when directly invoked by name or command. They do not affect normal queries or implicitly call one another.
+The three entry points activate only when directly invoked. Meta-prompt and plan can run independently; an explicitly invoked loop uses the base plan. Shared contracts and adapters ship inside each bundle.
 
 ## Install and update
 
@@ -75,11 +75,12 @@ $under-claw-jarvis-plan <requirements>
 
 ## 2. under-claw-jarvis-plan-loop
 
-Separates implementer and reviewer, then repeats until the review target is reached.
+Separates implementer and reviewer, then repeats until both the required evidence gate and the quality target are met.
 
 - Default target: `9.5/10`
 - Default maximum: `5` rounds
-- Improvement below `0.2` is treated as a plateau
+- Plateau: two consecutive rounds reduce neither the number of unresolved required criteria nor the score gap by at least `0.2`
+- Optional `--max-seconds` bounds elapsed time at stage boundaries
 - Reports remaining gaps when the target or round limit stops the loop
 - Invoked independently from the base plan skill
 
@@ -154,3 +155,38 @@ The Plan methodology adapts principles from these MIT projects:
 - Authoring reference: [anthropics/skills](https://github.com/anthropics/skills)
 
 See [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) for complete attribution and [`LICENSE`](LICENSE) for this project's license.
+
+## Evidence-based composition (v0.2)
+
+The three explicit entry points remain. Meta-prompt can generate a standalone JSON contract with
+`--spec [-d contract.json]`; normal prompt and clipboard behavior is unchanged.
+Plan binds acceptance criteria to verification evidence. Loop requires both the hard evidence gate
+and the quality target; missing required results, stale hashes, or blockers cannot be offset by a high score.
+Later rounds resume at understand, plan, implement, or review according to the defect and valid prior evidence.
+Optional `--max-seconds` bounds elapsed loop time at stage boundaries.
+
+Bundled adapters selectively apply ideas from Ouroboros (contracts and staged evaluation),
+im-not-ai (meaning-preserving Korean editing), OpenDesign (design systems and rendered review),
+and Google Workspace CLI (service operations and read-back verification).
+
+```bash
+./install.sh --with-components
+./install.sh --codex-only --with-components
+```
+
+These options cache the four pinned upstream repositories under `~/.under-claw/components/`.
+They do not register upstream skills, execute upstream installers, install apps/CLIs, configure MCP,
+or authenticate accounts. Use available host tools or explicitly set up the needed integration.
+Ouroboros is not nested as a second execution engine. An existing task system remains the execution
+ledger; local evidence files are attachments, not a second source of progress.
+
+See [contracts](shared/contract.md), [verification](shared/verification.md),
+[components](shared/components.md), and [pinned revisions](shared/components.json).
+The evidence helper validates recorded claims and hashes; it does not execute tests or prove semantic correctness.
+
+```bash
+python3 -m unittest discover -s tests -p 'test_*.py'
+python3 tools/sync-shared.py --check
+```
+
+`shared/` is the maintained source; `tools/sync-shared.py` packages it into all three standalone skills.

@@ -14,4 +14,6 @@ license: MIT
 - `/under-claw-meta-prompt <질의>`: 결과 프롬프트를 응답하고 클립보드에 복사
 - `/under-claw-meta-prompt -d <PATH> <질의>`: 대상의 기존 프롬프트를 수정하거나 `PROMPT.md`를 생성하고 상태·경로·요약만 응답
 
+`/under-claw-meta-prompt --spec [-d PATH] <질의>`는 공통 명세 JSON을 생성한다. 상세 파싱·저장 규칙은 같은 SKILL.md를 따른다.
+
 다른 under-claw 스킬을 호출하지 않는다.

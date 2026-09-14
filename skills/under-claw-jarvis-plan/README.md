@@ -39,3 +39,9 @@ Codex는 `./install.sh --codex-only`로 `${CODEX_HOME:-~/.codex}/skills/under-cl
 - Understand-Anything: 설치 시 `/understand`·`/understand-diff`로 코드 구조 매핑 강화.
   미설치면 council fan-out으로 대체.
 - 메모리: 파일기반 경량(설계 doc = `docs/under-claw-jarvis-plan/specs/`). agentmemory 등 무거운 인프라 미사용.
+
+## v0.2 공통 구성
+
+번들의 `shared/contract.md`와 `shared/verification.md`가 명세와 검증 결과 형식을 정의한다.
+`shared/components.md`는 Ouroboros·im-not-ai·OpenDesign·Google Workspace 선택 어댑터를 소유한다.
+외부 원본 소스 캐시는 선택 사항이며 실제 CLI/MCP 연결과 구분한다.

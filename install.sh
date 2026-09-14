@@ -9,6 +9,7 @@
 #   ./install.sh                  기본 = Claude + Codex에 세 스킬 설치/업데이트
 #   ./install.sh --skill-only     Claude에만 설치(하위호환)
 #   ./install.sh --claude-only    Claude에만 설치
+#   ./install.sh --with-components 네 선택 구성요소 원본 소스 캐시(도구 설치/인증 없음)
 #   ./install.sh --with-externals 기본 설치 + Claude 외부 참조 스킬(opt-in)
 #   ./install.sh --externals-only Claude 의존(외부 참조) 스킬만
 #   ./install.sh --codex          기본 설치와 동일(하위호환)
@@ -63,6 +64,7 @@ MODE="default"
 ADD_CODEX=0
 ADD_GEMINI=0
 WITH_EXTERNALS_OVERRIDE=""
+WITH_COMPONENTS=0
 for a in "$@"; do
   case "$a" in
     --skill-only|--externals-only|--codex-only|--gemini-only|--claude-only)
@@ -70,6 +72,7 @@ for a in "$@"; do
       MODE="${a#--}"
       ;;
     --with-externals) WITH_EXTERNALS_OVERRIDE=1 ;;
+    --with-components) WITH_COMPONENTS=1 ;;
     --codex)          ADD_CODEX=1 ;;
     --gemini)         ADD_GEMINI=1 ;;
     -h|--help) grep '^#' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
@@ -99,6 +102,12 @@ case "$MODE" in
   gemini-only) INSTALL_CLAUDE=0; INSTALL_CODEX=0; INSTALL_GEMINI=1; WITH_EXTERNALS=0 ;;
 esac
 [[ -n "$WITH_EXTERNALS_OVERRIDE" ]] && WITH_EXTERNALS="$WITH_EXTERNALS_OVERRIDE"
+
+# 원본 캐시 옵션은 어느 호스트 모드와도 조합 가능하다. 설치 변경 전에 도구를 확인한다.
+if [[ "$WITH_COMPONENTS" == 1 ]]; then
+  command -v python3 >/dev/null || { echo "[실패] --with-components는 python3 필요" >&2; exit 2; }
+  command -v git >/dev/null || { echo "[실패] --with-components는 git 필요" >&2; exit 2; }
+fi
 
 backup() {
   local p="$1" namespace="$2" name
@@ -201,7 +210,7 @@ ANTHROPIC_SKILLS_SHA="34040c9c568585f6929bedeaad110ad08f079624"
 UNDERSTAND_ANYTHING_SHA="6df3065f1d8ddc2ce3615314d1d493f36d6b1c80"
 
 clone_pinned() {
-  local url="$1" name="$2" sha="$3" tmp actual
+  local url="$1" name="$2" sha="$3" cache_root="${4:-$CACHE}" namespace="${5:-claude/sources}" tmp actual
   command -v git >/dev/null || { echo "  [실패] git 미설치"; return 1; }
   tmp="$(mktemp -d)"; register_temp "$tmp"
   git -C "$tmp" init -q || return 1
@@ -210,7 +219,7 @@ clone_pinned() {
   git -C "$tmp" checkout --detach -q FETCH_HEAD || return 1
   actual="$(git -C "$tmp" rev-parse HEAD)" || return 1
   [[ "$actual" == "$sha" ]] || { echo "  [실패] $name revision 불일치"; return 1; }
-  install_tree "$tmp" "$CACHE/$name" "claude/sources" || return 1
+  install_tree "$tmp" "$cache_root/$name" "$namespace" || return 1
   echo "  [클론] $name@$sha"
 }
 
@@ -233,11 +242,35 @@ install_externals() {
   fi
 }
 
+install_components() {
+  local rows component_id component_url component_sha
+  rows="$(python3 - "$SRC_DIR/shared/components.json" <<'PYMANIFEST'
+import json, re, sys
+manifest = json.load(open(sys.argv[1]))
+assert manifest['schema_version'] == 1
+seen = set()
+for c in manifest['components']:
+    assert re.fullmatch(r'[a-z][a-z0-9-]*', c['id']) and c['id'] not in seen
+    assert re.fullmatch(r'https://github.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+', c['url'])
+    assert re.fullmatch(r'[0-9a-f]{40}', c['sha'])
+    assert c['mode'] == 'source-cache'
+    seen.add(c['id'])
+    print(c['id'], c['url'], c['sha'], sep='\t')
+assert seen
+PYMANIFEST
+)" || return 1
+  while IFS=$'\t' read -r component_id component_url component_sha; do
+    clone_pinned "$component_url" "$component_id" "$component_sha" "$HOME/.under-claw/components" "components" || return 1
+  done <<< "$rows"
+  echo "구성요소 원본 캐시 완료: ~/.under-claw/components (앱/CLI/MCP 설치·인증 없음)"
+}
+
 echo "under-claw-jarvis-plan 설치 (SSOT: $SRC_DIR)"
 if [[ "$INSTALL_CLAUDE" == "1" && "$EXTERNALS_ONLY" != "1" ]]; then install_skill; fi
 if [[ "$INSTALL_CODEX" == "1" ]]; then install_codex_skill; fi
 if [[ "$INSTALL_GEMINI" == "1" ]]; then install_gemini_skill; fi
 if [[ "$WITH_EXTERNALS" == "1" ]]; then install_externals; fi
+if [[ "$WITH_COMPONENTS" == "1" ]]; then install_components; fi
 [[ -n "$BACKUP_ROOT" && -d "$BACKUP_ROOT" ]] && echo "기존 파일 백업: $BACKUP_ROOT"
 [[ "$WITH_EXTERNALS" == "1" ]] && echo "Claude 의존(외부 참조) 스킬 포함 설치 완료." || echo "의존 제외 설치."
 [[ "$INSTALL_CODEX" == "1" ]] && echo 'Codex 설치 완료. 새 세션에서 $under-claw-jarvis-plan, $under-claw-jarvis-plan-loop, $under-claw-meta-prompt 사용 가능.'

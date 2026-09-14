@@ -91,3 +91,7 @@
 ### 종합 판정
 - 단계 N/N · 스킬 N/N · model N/N · 원칙 N/N → **PASS / PARTIAL / FAIL**
 - 실패·⏭️ 항목은 사유 1줄. (예: "스타일 규칙 스킬 ⏭️ — MCP 미연결", "제2모델 peer ⏭️ — 없음")
+
+## 공통 번들 점검
+
+`shared/contract.md`, `shared/verification.md`, `shared/evidence.py`, `shared/components.json`과 manifest가 가리키는 네 어댑터의 존재를 확인한다. 명세 생성·점수만 높은 실패·결함별 재수행·원본 미설치 fallback을 설명한다. 이 점검에서는 설치·외부 쓰기·실제 작업을 수행하지 않는다.

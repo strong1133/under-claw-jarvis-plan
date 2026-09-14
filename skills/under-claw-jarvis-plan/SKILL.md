@@ -21,6 +21,22 @@ Gemini 진입점은 `skills/under-claw-jarvis-plan/GEMINI.md`를 유지한다.
 > '구현(Phase4)'은 도메인 산출물 생성(코드·문서·계획·분석결과 등), '검수(Phase5)'는 도메인 관례 기준 검증으로 읽는다.
 > 코드 전용 용어(리팩토링·브라운필드·소스패턴)는 비코드 산출물에선 그 등가물로 해석한다.
 
+
+## 공통 명세·증거·외부 구성요소
+
+복합 작업의 Intake에서 스킬 번들의 `shared/contract.md`를 읽고 명세를 확정한다.
+검수 전에 `shared/verification.md`를 읽고 필수 기준·실행 증거·중대 결함을 검사한다.
+외부 구성 모듈은 `shared/components.md`에서 작업 유형에 맞는 것만 선택해 읽고
+`<component:이름 적용>`을 남긴다. 내장 방법론 적용과 원본 도구 실행을 구분한다.
+`shared/`는 이 스킬의 `references/`와 같은 부모 디렉터리 안에 있다.
+
+loop가 명세 해시·이전 증거·미해결 기준과 `resume_stage`를 전달하면 단계 회귀로
+처리한다. 기존 단계 산출물이 유효한지 먼저 확인하고 지정 단계부터 진행한다.
+앞 단계의 증거가 없거나 명세/산출물이 달라졌으면 해당 단계까지 돌아간다.
+변경하지 않은 이해·설계의 합의를 매번 다시 만들지 않는다. 새 결정과 변경 영역은
+기존 HARD-GATE·Definition of Done과 ACTIVE_PARTICIPANTS 검수 규칙을 따른다.
+작업 내용이 바뀌면 영향을 받는 기준을 다시 검증하고, 외부 쓰기는 재조회 후 판단한다.
+
 ## 우선순위
 
 1. 오케스트레이션 방법론인 단계, 게이트, council 운용은 이 스킬이 권위를 갖는다.
@@ -72,6 +88,10 @@ Gemini 진입점은 `skills/under-claw-jarvis-plan/GEMINI.md`를 유지한다.
 | `60-skill-orchestration.md` | 환경 스킬 선택 | `<skill-orchestration 적용>` |
 | `70-planning.md` | 구체 스킬 매핑 | `<planning 적용>` |
 | `90-test.md` | 자가진단 | `<test 실행>` |
+| `shared/components/ouroboros.md` | 명세·검증 | `<component:ouroboros 적용>` |
+| `shared/components/humanize.md` | 한국어 윤문 | `<component:humanize 적용>` |
+| `shared/components/design.md` | 디자인·시각 검수 | `<component:design 적용>` |
+| `shared/components/workspace.md` | 구글 업무 | `<component:workspace 적용>` |
 
 ## 모드 분기
 
@@ -84,7 +104,7 @@ Gemini 진입점은 `skills/under-claw-jarvis-plan/GEMINI.md`를 유지한다.
 복합 작업, 다중 파일 변경, 설계, 구현, 리팩토링은 아래를 지킨다.
 
 1. 시작 즉시 `update_plan`에 `[이해]`, `[계획]`, `[구현]`, `[검수]` 네 task를 만든다.
-2. 단계 순서는 이해, 계획, 구현, 검수 순으로 진행한다. 앞으로 건너뛰지 않는다.
+2. 첫 실행은 이해, 계획, 구현, 검수 순으로 진행한다. 재수행은 공통 명세의 증거 확인 후 단계 회귀 규칙을 따른다.
 3. brownfield는 최초요구, 현재구현, 교정요청의 3자 대조를 끝내기 전 구현하지 않는다.
 4. 되돌리기 어려운 변경, 배포, 외부 전송, 대량 삭제, push는 사용자 지시 또는 호스트 규칙이 허용할 때만 수행한다.
 5. council 사고 단계에서 참여자 2명 이상이면 `ACTIVE_PARTICIPANTS`별 독립 산출물, 전원 `[DRAFT_READY]`, 합성표, 전원 유효 ACK, `[BLOCK]` 0을 요구한다. solo는 `DEGRADED_REVIEW` 대체 게이트를 적용한다.

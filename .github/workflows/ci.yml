@@ -20,5 +20,9 @@ jobs:
         run: bash tests/install.sh
       - name: Test meta-prompt file handling
         run: bash tests/meta-prompt.sh
+      - name: Verify common bundles
+        run: python3 tools/sync-shared.py --check
+      - name: Test evidence gates and optional components
+        run: python3 -m unittest discover -s tests -p 'test_*.py'
       - name: Run ShellCheck
         run: shellcheck install.sh tests/*.sh

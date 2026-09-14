@@ -72,3 +72,7 @@ under-claw-jarvis-plan은 **고차 스킬**이다 — 직접 다 하지 말고, 
 ## 로깅 관련 주의
 여기서 호출하는 **프로젝트 환경 스킬은 로깅·test 대상이 아니다**(구성 스킬이 아님).
 로깅 규약(`<…호출>`)은 commands의 "under-claw-jarvis-plan 구성 스킬" 표에 있는 구성 스킬에만 적용한다.
+
+## 내장 외부 구성 모듈
+
+Ouroboros·im-not-ai·OpenDesign·Google Workspace 연결은 번들의 `shared/components.md`에서 선택한다. 위 환경 스킬과 달리 이 네 어댑터는 구성 모듈로 로깅·자가진단 대상이다. 관련 작업에서만 읽고 외부 런타임은 자동 설치/호출하지 않는다.

@@ -9,6 +9,8 @@ set -euo pipefail
 
 cd "$(git rev-parse --show-toplevel 2>/dev/null || dirname "$(dirname "$0")")"
 
+python3 tools/sync-shared.py "$@"
+
 SRC=.claude/skills
 DST=.agents/skills
 
@@ -35,6 +37,7 @@ for d in "$SRC"/*/; do
   [ -d "$d" ] || continue
   name=$(basename "$d")
   [ -d "$DST/$name" ] || continue
+  if diff -r -q "$d" "$DST/$name" >/dev/null 2>&1; then continue; fi
   if [ -n "$(find "$DST/$name" -newer "$d" -type f 2>/dev/null)" ]; then
     echo "경고: $DST/$name 이 정본보다 최신입니다 — 미러를 직접 고쳤다면 그 수정이 사라집니다."
     printf '  계속할까요? [y/N] '

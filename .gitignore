@@ -13,3 +13,7 @@ CLAUDE.local.md
 .claude/agent-memory/
 .codex/local/
 .ai-template-backup/
+
+# Python validation helpers
+__pycache__/
+*.pyc

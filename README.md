@@ -12,7 +12,7 @@
 | `under-claw-jarvis-plan-loop` | 독립 검수 목표에 도달할 때까지 구현과 검수를 반복 | `/under-claw-jarvis-plan-loop` / `$under-claw-jarvis-plan-loop` |
 | `under-claw-meta-prompt` | 질의를 일관된 실행 프롬프트로 생성·개선 | `/under-claw-meta-prompt` / `$under-claw-meta-prompt` |
 
-세 스킬은 서로 독립적이며 이름이나 명령으로 직접 호출할 때만 활성화됩니다. 일반 질의에는 자동 적용되지 않고, 한 스킬이 다른 스킬을 암묵적으로 호출하지 않습니다.
+세 진입점은 이름이나 명령으로 직접 호출할 때만 활성화됩니다. meta-prompt는 단독으로 동작하고, plan도 독립 실행할 수 있습니다. loop는 명시 호출된 뒤 베이스 plan을 사용합니다. 공통 명세·검증·외부 구성 규칙은 각 번들에 포함됩니다.
 
 ## 설치와 업데이트
 
@@ -53,6 +53,40 @@ Karpathy Guidelines, Superpowers, Understand-Anything, skill-creator 같은 외�
 ./install.sh --externals-only   # 외부 참조 스킬만
 ```
 
+### 새 외부 구성요소
+
+Ouroboros(명세·단계별 검증), im-not-ai(한국어 의미 보존 윤문),
+OpenDesign(디자인 규약·시각 검수), Google Workspace CLI(구글 업무 연동)의
+내장 어댑터가 기본 번들에 포함됩니다. 작업에 해당하는 모듈만 읽습니다.
+
+```bash
+./install.sh --with-components                  # 기본 스킬 설치 + 네 원본 소스 캐시
+./install.sh --codex-only --with-components     # Codex 설치와 함께 사용 가능
+```
+
+원본은 `~/.under-claw/components/`에 고정 SHA로 내려받습니다.
+이 옵션은 원본 스킬 등록, 앱/CLI 설치, MCP 연결, OAuth 인증을 수행하지 않습니다.
+실제 도구를 쓰려면 해당 연결이 필요합니다. 원본 런타임을 자동 실행하지 않으며,
+내장 방법론 적용과 원본 도구 실행을 구분해 보고합니다.
+버전·라이선스는 [구성 목록](shared/components.json), 선택 기준은 [구성 가이드](shared/components.md)를 참고하세요.
+
+### 공통 작업 구조
+
+```text
+작업 명세 → plan → 산출물·실행 증거 → 검수
+                         ↑              ↓
+                   loop의 결함별 재수행
+```
+
+- 복합 작업은 요구사항 ID와 확인 방법을 포함한 [공통 명세](shared/contract.md)를 사용합니다.
+- 필수 기준 pass·실행 증거·최종 파일 해시·중대 결함 여부를 먼저 검사합니다.
+- loop는 그 조건과 품질 목표를 모두 만족해야 성공합니다. 10점이어도 필수 기준 실패는 통과하지 못합니다.
+- 이후 회차는 원인에 따라 이해/계획/구현/검수로 회귀하며, 유효한 이전 단계 증거를 재사용합니다.
+- 연결 작업 시스템이 있으면 기존 실행 원장에 증거를 연결하고, 없으면 작업별 로컬 파일에 기록합니다.
+
+검증기는 보고의 일관성과 해시를 검사합니다. 실제 테스트 실행이나 의미 검수를 대신하지 않습니다.
+상세 보고 형식과 명령은 [검증 가이드](shared/verification.md)에 있습니다.
+
 ## 1. under-claw-jarvis-plan
 
 여러 파일·프로젝트에 걸친 작업을 다음 단계로 진행하는 범용 오케스트레이터입니다.
@@ -75,11 +109,12 @@ $under-claw-jarvis-plan <요구사항>
 
 ## 2. under-claw-jarvis-plan-loop
 
-구현자와 검수자를 분리하고 결과가 목표 점수에 도달할 때까지 반복 개선합니다.
+구현자와 검수자를 분리하고 필수 증거 검증과 목표 점수를 함께 만족할 때까지 반복 개선합니다.
 
 - 기본 목표: `9.5/10`
 - 기본 최대 회차: `5`
-- 개선 폭이 `0.2` 미만이면 plateau로 판단
+- 최근 2회 연속 필수 미해결 수가 줄지 않고 점수 개선도 `0.2` 미만이면 plateau
+- 선택 `--max-seconds`로 전체 경과시간 한도 지정
 - 목표 미달·반복 한도 도달 시 사용자에게 남은 gap을 보고
 - 베이스 plan 스킬과 별도 명시 호출
 
@@ -97,6 +132,7 @@ $under-claw-jarvis-plan-loop <요구사항>
 /under-claw-meta-prompt <질의>            # 결과 응답 + 클립보드 복사
 $under-claw-meta-prompt <질의>            # Codex
 /under-claw-meta-prompt -d <PATH> <질의>  # 프롬프트 파일 생성·개선
+/under-claw-meta-prompt --spec -d contract.json <질의>  # 실행하지 않고 JSON 명세 저장
 ```
 
 - 사실·가정·미확정을 구분합니다.
@@ -124,6 +160,8 @@ Plan 스킬의 단계별 환경 스킬은 외부 skill-map으로 바꿀 수 있�
 bash tests/validate.sh      # 구조·계약·민감정보 검사
 bash tests/install.sh       # Claude/Codex/Gemini 격리 설치·업데이트 검사
 bash tests/meta-prompt.sh   # 프롬프트 파일 저장 안전성 검사
+python3 -m unittest discover -s tests -p 'test_*.py'
+python3 tools/sync-shared.py --check
 shellcheck install.sh tests/*.sh skills/under-claw-meta-prompt/scripts/*.sh
 ```
 
@@ -138,6 +176,7 @@ skills/
 ├── under-claw-jarvis-plan/
 ├── under-claw-jarvis-plan-loop/
 └── under-claw-meta-prompt/
+shared/                  # 공통 계약·검증·구성요소 정본
 install.sh
 tests/
 README.md

@@ -2,10 +2,12 @@
 set -euo pipefail
 
 usage() {
-  echo "사용법: save-prompt.sh <PATH>" >&2
+  echo "사용법: save-prompt.sh [--spec] <PATH>" >&2
   exit 2
 }
 
+spec_mode=0
+if [[ "${1:-}" == "--spec" ]]; then spec_mode=1; shift; fi
 [[ "$#" == 1 && -n "$1" ]] || usage
 input_path="$1"
 
@@ -19,6 +21,8 @@ if [[ -f "$input_path" ]]; then
 elif [[ -e "$input_path" && ! -d "$input_path" ]]; then
   echo "일반 파일 또는 디렉터리가 아닌 대상입니다: $input_path" >&2
   exit 4
+elif [[ "$spec_mode" == 1 && -d "$input_path" ]]; then
+  target="$input_path/CONTRACT.json"
 elif [[ -d "$input_path" ]]; then
   if [[ -L "$input_path/PROMPT.md" ]]; then
     echo "심볼릭 링크는 수정하지 않습니다: $input_path/PROMPT.md" >&2
@@ -41,6 +45,10 @@ elif [[ -d "$input_path" ]]; then
       target="$input_path/PROMPT.md"
     fi
   fi
+elif [[ "$spec_mode" == 1 && "$input_path" == *.json ]]; then
+  target="$input_path"
+elif [[ "$spec_mode" == 1 ]]; then
+  target="$input_path/CONTRACT.json"
 elif [[ "$input_path" == *.md ]]; then
   target="$input_path"
 else
@@ -55,11 +63,17 @@ mkdir -p "$parent"
 status="created"
 [[ -f "$target" ]] && status="updated"
 stage="$(mktemp "$parent/.under-claw-meta-prompt.XXXXXX")"
-cleanup() { [[ -n "${stage:-}" && -e "$stage" ]] && rm -f -- "$stage"; }
+cleanup() { if [[ -n "${stage:-}" && -e "$stage" ]]; then rm -f -- "$stage"; fi; }
 trap cleanup EXIT HUP INT TERM
 
 dd of="$stage" 2>/dev/null
 [[ -s "$stage" ]] || { echo "빈 프롬프트는 저장하지 않습니다." >&2; exit 2; }
+if [[ "$spec_mode" == 1 ]]; then
+  python3 "$(dirname "${BASH_SOURCE[0]}")/../shared/evidence.py" contract "$stage" >/dev/null || {
+    echo "유효하지 않은 작업 명세입니다. 기존 파일을 유지합니다." >&2
+    exit 2
+  }
+fi
 mv -f -- "$stage" "$target"
 stage=""
 printf '%s\t%s\n' "$status" "$target"

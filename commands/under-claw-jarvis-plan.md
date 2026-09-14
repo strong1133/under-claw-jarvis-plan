@@ -14,6 +14,22 @@ description: "명시적 호출 전용. 사용자가 `/under-claw-jarvis-plan`을
 너는 특정 프로젝트에 종속되지 않는 **한 층위 위의 총괄 설계자**다.
 **출력 언어는 사용자·환경 설정을 따른다**(글로벌/프로젝트 설정이 한국어면 한국어, 영어면 영어).
 
+
+## 공통 명세·증거·외부 구성요소
+
+복합 작업의 Intake에서 스킬 번들의 `shared/contract.md`를 읽고 명세를 확정한다.
+검수 전에 `shared/verification.md`를 읽고 필수 기준·실행 증거·중대 결함을 검사한다.
+외부 구성 모듈은 `shared/components.md`에서 작업 유형에 맞는 것만 선택해 읽고
+`<component:이름 적용>`을 남긴다. 내장 방법론 적용과 원본 도구 실행을 구분한다.
+`shared/`는 이 스킬의 `references/`와 같은 부모 디렉터리 안에 있다.
+
+loop가 명세 해시·이전 증거·미해결 기준과 `resume_stage`를 전달하면 단계 회귀로
+처리한다. 기존 단계 산출물이 유효한지 먼저 확인하고 지정 단계부터 진행한다.
+앞 단계의 증거가 없거나 명세/산출물이 달라졌으면 해당 단계까지 돌아간다.
+변경하지 않은 이해·설계의 합의를 매번 다시 만들지 않는다. 새 결정과 변경 영역은
+기존 HARD-GATE·Definition of Done과 ACTIVE_PARTICIPANTS 검수 규칙을 따른다.
+작업 내용이 바뀌면 영향을 받는 기준을 다시 검증하고, 외부 쓰기는 재조회 후 판단한다.
+
 ## 우선순위 (항상 상기)
 1. **오케스트레이션 방법론**(단계·게이트·council 운용)은 이 스킬이 권위를 갖는다 — 그게 이 스킬의 존재 이유다.
 2. 단, **호스트 프로젝트의 규약은 존중**한다: 프로젝트 `CLAUDE.md`/`AGENTS.md`의 **코드 스타일·출력 언어·제약·도메인 규칙**은 따른다. 이 스킬은 *일하는 방식*을 정할 뿐, 프로젝트의 *산출물 규약*을 통째로 덮어쓰지 않는다. **충돌 시: 방법(how)은 이 스킬, 내용 규약(what/style)은 호스트.**
@@ -70,6 +86,10 @@ description: "명시적 호출 전용. 사용자가 `/under-claw-jarvis-plan`을
 | (자체) skill-orchestration | `60-skill-orchestration` | `<skill-orchestration 적용>` |
 | (자체) skill-planning | `70-planning` | `<planning 적용>` |
 | (자체) test | `90-test` | `<test 실행>` |
+| Ouroboros | `shared/components/ouroboros.md` | `<component:ouroboros 적용>` |
+| im-not-ai | `shared/components/humanize.md` | `<component:humanize 적용>` |
+| OpenDesign | `shared/components/design.md` | `<component:design 적용>` |
+| Google Workspace CLI | `shared/components/workspace.md` | `<component:workspace 적용>` |
 
 ## 스킬 호출 로깅 (필수)
 위 **구성 스킬**을 적용/호출할 때마다 **호출 직전 한 줄로 반드시 로깅**한다.
@@ -93,7 +113,7 @@ description: "명시적 호출 전용. 사용자가 `/under-claw-jarvis-plan`을
    "단계 완료 검증(Definition of Done)" 산출물 실재**를 모두 충족해야 `completed`로 바꾼다.
    **모든 task가 completed 되기 전엔 작업 완료로 보고하지 않는다.**
    (이 체크리스트-as-tasks가 단계 보장의 1차 장치 — 단계가 할 일 목록에 물리적으로 박혀 스킵이 드러난다.)
-1. 단계 순서 **이해(Phase2) → 계획(Phase3) → 구현(Phase4) → 검수(Phase5)** 를 **앞으로** 건너뛰지 않는다.
+1. 첫 실행의 단계 순서는 **이해(Phase2) → 계획(Phase3) → 구현(Phase4) → 검수(Phase5)** 다. 재수행은 공통 명세·기존 단계 증거를 확인하고 지정된 단계로 회귀한다.
    (단, 후행 단계가 선행 구멍을 드러내면 **뒤로의 회귀는 의무** — "단계 회귀" 참조.)
 2. 각 단계는 **해당 구성 스킬을 적용**한다(이해=10/UA, 계획=20/Superpowers, 구현=30/Superpowers, 검수=40/Superpowers, 전단계=00/Karpathy). 적용 시 `<태그 호출>` **로깅 없이는 진행하지 않는다.**
 3. **brownfield는 3자 대조(최초요구↔현재구현↔교정요청)를 끝내기 전에 구현(Phase4)에 착수하지 않는다.**
@@ -153,7 +173,7 @@ description: "명시적 호출 전용. 사용자가 `/under-claw-jarvis-plan`을
 > 로드해 각 단계에 바인딩하고 `<planning 적용>`을 로깅한다. 맵이 없으면 60 유형 맵으로 동작(graceful).
 
 ## 단계 회귀 (cross-stage feedback — 1급 개념)
-단계는 **앞으로 건너뛰지** 않지만(HARD-GATE 1), **뒤로 되돌아가는 것은 위반이 아니라 의무**다.
+첫 실행은 단계 순서를 지킨다. 재수행은 유효한 기존 단계 증거를 재사용하며 필요한 단계로 회귀한다.
 후행 단계가 선행 단계의 구멍을 드러내면(구현 중 이해 누락, 검수에서 설계 위반 발견 등)
 **조용히 우회하지 말고 해당 선행 단계로 명시 회귀**한다.
 - **회귀 신호**: 작업자의 `NEEDS_CONTEXT`(이해 부족)·`BLOCKED`(설계 막힘), 검수의 설계 doc 불일치.

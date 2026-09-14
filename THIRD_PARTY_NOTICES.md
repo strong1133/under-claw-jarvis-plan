@@ -45,3 +45,19 @@ Superpowers 원본에는 작업 규모에 따른 설계 흐름, 계획별 작업
 외부 설치는 원본 스킬 디렉터리 전체를 복사하므로 관련 보조 스크립트도 함께 갱신된다.
 under-claw 내부 references는 자체 흐름에 맞춘 발췌·적응본으로, 원본의 모든 정책을
 그대로 적용하는 사본은 아니다. 이번 갱신은 외부 설치 버전에 적용한다.
+
+## 5. 선택 구성 모듈 (2026-09-14)
+
+다음 프로젝트를 참고해 `shared/components/`의 연결 규칙을 독립적으로 작성했다.
+원본 구현을 번들에 복사하지 않는다. 원본 캐시 옵션은 LICENSE를 포함한 저장소를
+고정 revision 그대로 보존하며 자동으로 실행하지 않는다.
+
+| 원본 | 라이선스 | 적용 |
+|---|---|---|
+| https://github.com/Q00/ouroboros | MIT | 명세·단계별 검증·재개 원리 |
+| https://github.com/epoko77-ai/im-not-ai | MIT | 한국어 문제 구간 윤문·의미 보존 |
+| https://github.com/nexu-io/open-design | Apache-2.0 | 디자인 규약·실제 렌더링 검수 |
+| https://github.com/googleworkspace/cli | Apache-2.0 | 서비스별 연결·변경 후 재조회 |
+
+정확한 revision은 [shared/components.json](shared/components.json)이 소유한다.
+공통 명세 스키마와 evidence.py는 이 저장소에서 자체 작성했다.
