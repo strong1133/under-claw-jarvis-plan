@@ -253,8 +253,8 @@ else
 fi
 
 echo "▶ 14. 설치 안전성·CI"
-for sha in 2c606141936f1eeef17fa3043a72095b4765b9c2 d884ae04edebef577e82ff7c4e143debd0bbec99 \
-           fa0fa64bdc967915dc8399e803be67759e1e62b8 2f24580ba076592a1a6d766e47590836436f30f6; do
+for sha in 2c606141936f1eeef17fa3043a72095b4765b9c2 b36e0829c6d0140e93cfef2ca599b1b07d4a7797 \
+           34040c9c568585f6929bedeaad110ad08f079624 6df3065f1d8ddc2ce3615314d1d493f36d6b1c80; do
   grep -q "$sha" install.sh && ok "installer pin: $sha" || bad "installer pin 누락: $sha"
 done
 for binding in \
