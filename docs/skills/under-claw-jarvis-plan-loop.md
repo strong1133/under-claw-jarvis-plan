@@ -56,3 +56,75 @@ $under-claw-jarvis-plan-loop <요구사항>
 ```
 
 출력은 회차별 `<loop round N>`·`<loop verdict N>` 로그, 회차 기록(명세·산출물·증거 해시와 기준별 상태), 검수 보고 JSON, 종료 보고(확인한 내용·완료한 작업·최종 검증 상태·못 한 부분과 이유·범위 밖 발견·채택한 가정)다. `--target`을 낮춰 실행했으면 9.5가 기본 권장임을 마감 보고에 한 줄 적는다.
+
+## 예시: 실제 전달되는 프롬프트
+
+시나리오: 사용자가 `/under-claw-jarvis-plan-loop` 뒤에 "사내 Node.js 주문 API의 `/orders`에 페이지네이션(limit, cursor)을 추가하고 기존 응답 형식은 유지, 문서도 갱신 `--target 9.5 --max-rounds 5`"를 요청했다.
+첫 회차는 베이스 plan의 전체 흐름을 수행하고(위임 프롬프트는 [plan 문서](under-claw-jarvis-plan.md)의 예시와 같다), 검수에서 필수 기준 하나가 실패해 2회차로 넘어간 상황이다. 오케스트레이터가 아래 프롬프트를 **구현자와 검수자에게 전달**한다. 설치 경로는 Claude 설치 기준이다.
+
+### 1. 루프 시작 알림과 1회차 판정 로그
+
+```text
+루프 시작: /orders 페이지네이션. TARGET 9.5, MAX_ROUNDS 5. 명세 contract.json (sha256 3f9c…a1) 고정.
+<loop round 1>
+<loop verdict 1: hard_pass=false score=9.1 resume_stage=implement>
+1회차: C3(마지막 페이지에서 nextCursor 없음) fail — 빈 문자열을 반환함. C1·C2·C4 pass. 2회차는 implement부터.
+```
+
+### 2. 2회차 — 구현자(fresh 컨텍스트)에게 보내는 요청
+
+```text
+under-claw-jarvis-plan 2회차 구현. resume_stage=implement. 이해·계획 산출물은 유효하므로 다시 만들지 않는다.
+
+원요구: /orders에 limit·cursor 페이지네이션 추가, 기존 응답 형식 유지, 문서 갱신.
+명세: run/contract.json (sha256 3f9c…a1). 기준 C1~C4. 이 파일을 수정하지 않는다.
+작업 경계: src/routes/orders.js, src/services/orderQuery.js, docs/api/orders.md, tests/routes/orders.test.js
+유효한 단계 산출물: 이해 요약 run/round1/understand.md, 설계 doc docs/under-claw-jarvis-plan/specs/2026-09-18-orders-pagination-design.md
+criterion별 gap:
+- C3 (필수) fail: 마지막 페이지에서 nextCursor가 "" 로 반환됨. 명세는 "다음 페이지 없음을 구분 가능"을 요구하며 설계 doc 2는 null 로 정했다.
+  검수자 근거: run/round1/evidence/manual-calls.txt 12~15행.
+이번 회차 한도: 이 회차 안에서 C3만 수정하고 영향받는 검사(C1·C2·C4)를 재실행한다.
+
+작업 원칙 — ~/.claude/skills/under-claw-jarvis-plan-loop/shared/working-principles.md 를 적용한다. 특히:
+- C3 충족에 꼭 필요한 수정만 한다. 점수를 올리려고 범위를 넓히지 않는다. 관련 없는 결함은 "범위 밖 발견"에 적는다.
+- 확인용 임시 코드는 산출물에 남기지 않는다. 테스트 파일은 사용자 요청 또는 프로젝트 관례(tests/routes/*.test.js)가 있을 때만 기존 방식으로 추가한다.
+- 사용자에게 묻지 않는다. 판단이 필요하면 가정을 기록하고 진행한다. 막히면 나머지를 끝내고 막힌 항목과 이유를 보고한다.
+
+보고: 변경 산출물 경로·sha256, C1~C4 각각 claim→evidence(실행 명령·종료 코드·핵심 출력 파일), 재사용한 단계와 근거, 미해결·가정, 범위 밖 발견, 사용한 구성요소.
+자기 점수를 매기지 않는다. 자기변론 대신 산출물과 근거를 전달한다.
+```
+
+### 3. 2회차 — 검수자(분리된 컨텍스트)에게 보내는 요청
+
+```text
+under-claw-jarvis-plan-loop 2회차 검수. review_mode=independent. 구현자의 보고 중 자기 점수·자기변론은 전달하지 않았다.
+
+원요구: /orders에 limit·cursor 페이지네이션 추가, 기존 응답 형식 유지, 문서 갱신.
+명세: run/contract.json (sha256 3f9c…a1)
+검수 대상 revision: git 7a2e…c4 (작업 경계 파일 4개)
+증거: run/round2/evidence/ (npm-test.log, manual-calls.txt, diff.patch)
+TARGET 9.5
+
+절차: ~/.claude/skills/under-claw-jarvis-plan-loop/references/30-reviewer.md 와 40-scoring.md, shared/verification.md 를 따른다.
+- C1~C4 각각 실제 증거와 대조해 pass|fail|unknown 을 매긴다. 실행하지 않은 검사는 unknown 이다.
+- 대상 revision이 증거와 다르거나 검사가 빠졌으면 npm test -- tests/routes/orders.test.js 를 직접 재실행한다.
+- 필요 사유 보고가 없는 요청 밖 수정, 남은 임시 코드, 근거 없는 테스트 파일은 범위 이탈로 blockers 에 적는다.
+- D1~D4 점수는 원요구 원문에 고정해 독립 재채점한다. 1회차 점수를 인용하지 않는다.
+제출: shared/verification.md 의 보고 JSON (contract_sha256, artifacts 해시, results, blockers, scores). 실패는 understand/plan/implement/review 중 원인 단계로 분류한다.
+```
+
+### 4. 판정과 종료 보고
+
+```text
+$ python3 shared/evidence.py judge run/contract.json run/round2/report.json --root run/round2 --target 9.5
+{"passed": true, "hard_pass": true, "score": 9.6, "resume_stage": null, "issues": []}
+<loop verdict 2: hard_pass=true score=9.6 resume_stage=none>
+<loop end: PASS>
+
+확인한 내용: 1회차 C3 실패 원인은 마지막 페이지의 빈 문자열 반환. 2회차에서 null 로 수정.
+완료한 작업: 코드·문서·테스트 갱신, 2회차 만에 종료. 산출물 해시는 run/round2/report.json.
+최종 검증 상태: C1~C4 pass(독립 검수), score 9.6 ≥ TARGET 9.5.
+못 한 부분과 이유: 없음.
+범위 밖 발견: src/routes/orders.js 의 미사용 import 2개 — 고치지 않음.
+채택한 가정: limit 기본 20·최대 100, cursor는 base64(created_at|id).
+```
