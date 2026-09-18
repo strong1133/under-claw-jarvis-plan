@@ -30,7 +30,7 @@ Codex `$under-claw-jarvis-plan` (Codex 진입점: `SKILL.md`)이 참조하는 �
 | `90-test.md` | 자가진단 | 자체 — `/under-claw-jarvis-plan test` 단계·스킬·model별 점검 매트릭스 |
 
 ## 설치
-SSOT는 레포 `under-claw-jarvis-plan`. 레포 루트의 `install.sh` 한 방으로 `~/.claude/`에 설치된다.
+SSOT는 레포 `under-claw-jarvis-plan`. 레포 루트의 `install.sh` 한 번 실행으로 `~/.claude/`에 설치된다.
 이 스킬은 특정 프로젝트/환경에 종속되지 않는다 — 작업 경로는 실행 시 프롬프트로 받는다.
 
 Codex는 `./install.sh --codex-only`로 `${CODEX_HOME:-~/.codex}/skills/under-claw-jarvis-plan`에 설치된다.
@@ -42,6 +42,7 @@ Codex는 `./install.sh --codex-only`로 `${CODEX_HOME:-~/.codex}/skills/under-cl
 
 ## v0.2 공통 구성
 
+번들의 `shared/working-principles.md`가 세 스킬 공통의 작업 방식을 정의한다.
 번들의 `shared/contract.md`와 `shared/verification.md`가 명세와 검증 결과 형식을 정의한다.
 `shared/components.md`는 plan 전용 Ouroboros 어댑터를 소유한다.
 외부 원본 소스 캐시는 선택 사항이며 실제 CLI/MCP 연결과 구분한다.

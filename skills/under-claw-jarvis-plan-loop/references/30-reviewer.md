@@ -8,7 +8,8 @@
 2. `shared/verification.md`에 따라 criterion별 실제 증거를 대조한다.
    로그가 읽기 어렵다면 다시 읽고, 대상 revision이 다르거나 검사가 빠졌을 때 관련 검사를 재실행한다.
 3. fail/unknown을 구분하고 누락된 근거는 만들어내지 않는다. 원문 의미·수치·범위 위반과
-   중대 결함은 blockers에 기록한다.
+   중대 결함은 blockers에 기록한다. 필요 사유 보고가 없는 요청 밖 수정, 남겨진 확인용 임시 코드, 요청·관례 근거가 없는
+   테스트 파일은 범위 이탈로 본다(→ `shared/working-principles.md`).
 4. `40-scoring.md`로 점수를 매긴다. 필수 기준 실패를 높은 품질 점수로 상쇄하지 않는다.
 5. 각 실패의 원인을 understand/plan/implement/review로 분류하고 수정해야 할 근거를 붙인다.
 6. 명세 해시, 산출물·증거 해시, 모든 기준 결과, blockers, review_mode, D1~D4 점수를

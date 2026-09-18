@@ -3,7 +3,11 @@
 입력이 `test`면 실제 루프·설치·외부 쓰기를 수행하지 않는다.
 
 - 베이스 진입점·references와 loop의 00/10/20/30/40 모듈을 찾는다.
-- 번들의 shared/contract.md, verification.md, evidence.py, components.json과 Ouroboros 어댑터를 확인한다.
+- 번들의 shared/working-principles.md, contract.md, verification.md, evidence.py, components.json과 Ouroboros 어댑터를 확인한다.
+- 공통 작업 원칙이 loop 모듈에 선언되어 있는지 하위 선언별로 확인한다: Intake에서 질문을 한 번에 묻음(진입점)과 회차 중간에 묻지 않음(00),
+  가정으로 대체할 수 없는 blocking_question은 나머지를 끝낸 뒤 BLOCK(00), 범위 밖 결함은 보고만·점수를 위한 범위 확대 금지(20),
+  임시 코드 미보존·테스트 파일 조건(20, 30), 위임 중 오케스트레이터 병행(10), 회차별 알림과 종료 보고 6항목(확인·완료·검증 상태·못 한 부분과 이유·범위 밖 발견·가정)(10),
+  구현·검수 요청에 원칙 적용 명시(10).
 - TARGET 기본 9.5, MAX_ROUNDS 기본 5, 선택 MAX_SECONDS, plateau/BLOCK 의미를 설명한다.
 - 필수 기준 실패 + 10점은 FAIL, hard_pass + 9.5는 PASS, 9.49는 반올림해 통과시키지 않음을 확인한다.
 - 명세 해시 변경·증거 누락·산출물 변경은 재검증 대상임을 확인한다.
@@ -12,5 +16,5 @@
   없으면 DEGRADED_REVIEW fallback과 그 제한을 보고한다.
 - 외부 어댑터가 원본 실행 엔진 중첩·자동 인증·재전송을 유발하지 않는지 확인한다.
 
-출력은 항목별 PASS/PARTIAL/FAIL과 근거 한 줄, 종합 판정이다.
+출력은 항목별 PASS/PARTIAL/FAIL과 근거 한 줄, 종합 판정이다. 하위 선언이 있는 항목은 선언별로 한 줄씩 쓴다.
 독립 검수를 실제로 수행하지 않았으면 수행했다고 주장하지 않는다.

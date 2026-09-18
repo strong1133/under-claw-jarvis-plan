@@ -9,8 +9,8 @@ description: "명시적 호출 전용. 사용자가 `/under-claw-jarvis-plan-loo
 ## 활성화 게이트 (최우선)
 
 사용자가 이 스킬을 이름이나 명령으로 직접 호출한 경우에만 실행한다.
-다른 요청에는 자동 활성화하지 않는다. 입력이 `test`면 `references/90-test.md`만
-읽고 읽기 전용 자가진단을 수행한다.
+다른 요청에는 자동 활성화하지 않는다. 입력이 `test`면 `references/90-test.md`를 읽고
+그 지시에 따라 읽기 전용 자가진단만 수행한다. 실제 루프는 돌리지 않는다.
 
 베이스 `under-claw-jarvis-plan`을 사용하되, 첫 회차는 이해→계획→구현→검수를 수행하고
 이후 회차는 증거가 유효한 단계를 재사용한다. 검수 분리와 기존 호출 이름은 유지한다.
@@ -22,7 +22,8 @@ description: "명시적 호출 전용. 사용자가 `/under-claw-jarvis-plan-loo
 한 번 확정한다(0.0~10.0 범위의 숫자). `--max-rounds`는 양의 정수, 기본 5다.
 선택 `--max-seconds`는 양의 정수이며 루프 전체 경과시간 한도다. 유효하지 않은 값은
 시작 전 BLOCK으로 반환한다. 사용자가 지정한 예산과 이미 부여한 권한을 보존한다.
-번들의 `shared/contract.md`와 `shared/verification.md`를 읽는다.
+번들의 `shared/working-principles.md`, `shared/contract.md`, `shared/verification.md`를 읽는다.
+결과를 바꾸는 질문은 이 Intake에서 한 번에 모아 묻고, 루프가 시작된 뒤에는 회차 중간에 묻지 않는다.
 Claude 명령 설치에서도 `shared/`는 설치된 loop 스킬 폴더 안에 있다.
 
 ## 실행 순서
