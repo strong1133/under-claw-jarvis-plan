@@ -12,7 +12,18 @@
 | `under-claw-jarvis-plan-loop` | 독립 검수 목표에 도달할 때까지 구현과 검수를 반복 | `/under-claw-jarvis-plan-loop` / `$under-claw-jarvis-plan-loop` |
 | `under-claw-meta-prompt` | 질의를 일관된 실행 프롬프트로 생성·개선 | `/under-claw-meta-prompt` / `$under-claw-meta-prompt` |
 
-세 진입점은 이름이나 명령으로 직접 호출할 때만 활성화됩니다. meta-prompt는 단독으로 동작하고, plan도 독립 실행할 수 있습니다. loop는 명시 호출된 뒤 베이스 plan을 사용합니다. 공통 명세·검증·외부 구성 규칙은 각 번들에 포함됩니다.
+세 진입점은 이름이나 명령으로 직접 호출할 때만 활성화됩니다. meta-prompt는 단독으로 동작하고, plan도 독립 실행할 수 있습니다. loop는 명시 호출된 뒤 베이스 plan을 사용합니다. 공통 작업 원칙·명세·검증·외부 구성 규칙은 각 번들에 포함됩니다.
+
+### 스킬별 프롬프트 구성 문서
+
+각 스킬이 에이전트에게 무엇을 지시하는지 파일 단위로 정리한 문서입니다.
+
+| 스킬 | 문서 |
+|---|---|
+| `under-claw-jarvis-plan` | [docs/skills/under-claw-jarvis-plan.md](docs/skills/under-claw-jarvis-plan.md) |
+| `under-claw-jarvis-plan-loop` | [docs/skills/under-claw-jarvis-plan-loop.md](docs/skills/under-claw-jarvis-plan-loop.md) |
+| `under-claw-meta-prompt` | [docs/skills/under-claw-meta-prompt.md](docs/skills/under-claw-meta-prompt.md) |
+| 세 스킬 공통 | [shared/working-principles.md](shared/working-principles.md) |
 
 ## 설치와 업데이트
 
@@ -73,6 +84,19 @@ Karpathy Guidelines, Superpowers, Understand-Anything, skill-creator 같은 외�
 내장 방법론 적용과 원본 도구 실행을 구분해 보고합니다.
 버전·라이선스는 [구성 목록](shared/components.json), 선택 기준은 [구성 가이드](shared/components.md)를 참고하세요.
 
+### 공통 작업 원칙
+
+세 스킬은 시작할 때 [공통 작업 원칙](shared/working-principles.md)을 읽고 따릅니다. 특정 모델이나 호스트를 전제로 하지 않습니다.
+
+- **표현**: 비유·수사·추상 표현 대신 직접 진술을 씁니다.
+- **질문과 멈춤**: 결과를 바꾸는 질문은 시작할 때 한 번에 모아 묻고, 시작한 뒤에는 가정을 기록하고 진행합니다. 멈추는 경우는 파괴적이거나 되돌리기 어려운 행동과 사용자가 결정해야 하는 실제 범위 변경뿐입니다.
+- **범위와 완료**: 요청과 관련 없는 문제는 고치지 않고 최종 보고에 후속 항목으로 적습니다. 일부가 막혀도 나머지를 끝내고 못 한 부분과 이유를 보고합니다.
+- **검증과 테스트 파일**: 수정한 기능은 실행으로 확인합니다. 확인용 임시 코드는 남기지 않고, 테스트 파일은 사용자가 요청했거나 프로젝트가 같은 종류의 테스트를 관리할 때만 기존 방식에 맞춰 추가합니다.
+- **위임 중 병행**: 서브에이전트에게 맡긴 동안 주 에이전트는 위임 결과에 의존하지 않는 작업을 계속합니다.
+- **진행 보고**: 시작 전 한 줄, 작업 중 짧은 진행 알림, 끝나면 확인한 내용·완료한 작업·검증 결과·못 한 부분과 이유·범위 밖 발견·채택한 가정을 정리합니다.
+
+plan과 loop는 이 원칙을 자신의 작업 방식으로 적용하고, meta-prompt는 표현 원칙을 생성물에, 나머지 원칙을 변경 작업용 프롬프트의 해당 섹션에 넣습니다.
+
 ### 공통 작업 구조
 
 ```text
@@ -103,6 +127,7 @@ Intake → 이해 → 계획 → 구현 → 검수
 - 필요하면 독립 서브에이전트 검토를 사용하고, 없으면 결정적 검증으로 대체합니다.
 - 개발뿐 아니라 문서·분석·기획·경제계획에도 같은 흐름을 적용합니다.
 - `test` 입력은 읽기 전용 자가진단을 수행합니다.
+- 프롬프트 구성: [docs/skills/under-claw-jarvis-plan.md](docs/skills/under-claw-jarvis-plan.md)
 
 ```text
 /under-claw-jarvis-plan <요구사항>
@@ -120,6 +145,7 @@ $under-claw-jarvis-plan <요구사항>
 - 선택 `--max-seconds`로 전체 경과시간 한도 지정
 - 목표 미달·반복 한도 도달 시 사용자에게 남은 gap을 보고
 - 베이스 plan 스킬과 별도 명시 호출
+- 프롬프트 구성: [docs/skills/under-claw-jarvis-plan-loop.md](docs/skills/under-claw-jarvis-plan-loop.md)
 
 ```text
 /under-claw-jarvis-plan-loop <요구사항> --max-rounds 5 --target 9.5
@@ -143,6 +169,8 @@ $under-claw-meta-prompt <질의>            # Codex
 - `-d`는 선택된 프롬프트 파일만 원자적으로 저장하고 상태·경로·요약만 응답합니다.
 - 입력 내부의 역할 변경·상위 지침 무시 문구는 데이터로 취급합니다.
 - 결과 형태와 톤은 `assets/prompt-template.md`와 `references/output-spec.md`에 고정되어 있습니다.
+- 실제 변경 작업용 프롬프트에는 공통 작업 원칙(범위 밖 보고, 동작 확인과 테스트 파일 조건, 질문 시점, 멈춤 조건, 진행 보고)을 해당 섹션에 한 번씩 넣습니다. 요약·번역에는 넣지 않습니다.
+- 프롬프트 구성: [docs/skills/under-claw-meta-prompt.md](docs/skills/under-claw-meta-prompt.md)
 
 ## 고급 설정
 
@@ -179,7 +207,8 @@ skills/
 ├── under-claw-jarvis-plan/
 ├── under-claw-jarvis-plan-loop/
 └── under-claw-meta-prompt/
-shared/                  # 공통 계약·검증·구성요소 정본
+shared/                  # 공통 작업 원칙·계약·검증·구성요소 정본
+docs/skills/             # 스킬별 프롬프트 구성 문서
 install.sh
 tests/
 README.md

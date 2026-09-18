@@ -12,7 +12,31 @@ This repository provides three independently invoked skills for Claude Code and 
 | `under-claw-jarvis-plan-loop` | Repeat implementation and independent review until the target is met | `/under-claw-jarvis-plan-loop` / `$under-claw-jarvis-plan-loop` |
 | `under-claw-meta-prompt` | Generate or refine a consistent executable prompt | `/under-claw-meta-prompt` / `$under-claw-meta-prompt` |
 
-The three entry points activate only when directly invoked. Meta-prompt and plan can run independently; an explicitly invoked loop uses the base plan. Shared contracts and adapters ship inside each bundle.
+The three entry points activate only when directly invoked. Meta-prompt and plan can run independently; an explicitly invoked loop uses the base plan. Shared working principles, contracts and adapters ship inside each bundle.
+
+### Prompt composition per skill
+
+These documents describe, file by file, what each skill instructs the agent to do (Korean).
+
+| Skill | Document |
+|---|---|
+| `under-claw-jarvis-plan` | [docs/skills/under-claw-jarvis-plan.md](docs/skills/under-claw-jarvis-plan.md) |
+| `under-claw-jarvis-plan-loop` | [docs/skills/under-claw-jarvis-plan-loop.md](docs/skills/under-claw-jarvis-plan-loop.md) |
+| `under-claw-meta-prompt` | [docs/skills/under-claw-meta-prompt.md](docs/skills/under-claw-meta-prompt.md) |
+| Shared by all three | [shared/working-principles.md](shared/working-principles.md) |
+
+### Shared working principles
+
+All three skills read [working principles](shared/working-principles.md) at start. The document is model- and host-agnostic:
+
+- **Prose**: direct statements instead of metaphor, flourish or abstraction.
+- **Questions and stopping**: questions that change the outcome are asked once at intake; afterwards the agent records assumptions and continues. It stops only for destructive or hard-to-reverse actions and genuine scope changes the user must decide.
+- **Scope and completion**: unrelated problems are reported as follow-ups, not fixed. If part of the work is blocked, the rest is finished and the gap is reported with reasons.
+- **Verification and test files**: changes are verified by running them. Scratch checks are not kept; test files are added only when requested or when the project already keeps that kind of test, matching its style.
+- **Working while delegating**: the main agent keeps doing non-dependent work while subagents run.
+- **Progress reporting**: one line before starting, brief updates while working, and a standalone final recap.
+
+Plan and loop apply these to their own execution; meta-prompt applies the prose rule to its output and passes the execution rules into prompts it generates for change tasks.
 
 ## Install and update
 
@@ -139,6 +163,8 @@ skills/
 ├── under-claw-jarvis-plan/
 ├── under-claw-jarvis-plan-loop/
 └── under-claw-meta-prompt/
+shared/                  # working principles, contracts, verification, components
+docs/skills/             # prompt composition per skill
 install.sh
 tests/
 README.md

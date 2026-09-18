@@ -11,6 +11,7 @@
 | `conventions/test-structure.md` | 테스트 배치·명명·실행 |
 | `conventions/instruction-maintenance.md` | 지침 문서 자체의 변경 절차 |
 | `adr/` | 되돌리기 어려운 결정과 그 배경 |
+| `skills/` | 세 스킬이 에이전트에게 지시하는 내용의 파일별 설명 (정본은 `commands/`·`skills/`·`shared/`) |
 
 ## 문서 헤더 규약
 
